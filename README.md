@@ -1,9 +1,9 @@
 TPF: Trabajo Práctico de Programación Funcional
 ===============================================
 
-_Algoritmo y Estructuras de Datos I - 1° Cuatrimestre 2012_
+_Algoritmos y Estructuras de Datos I - 1° Cuatrimestre 2012_
 
-*Grupo 10* 
+**Grupo 10** 
 
 Integrantes
 -----------
