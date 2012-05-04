@@ -13,8 +13,8 @@ Integrantes
 - Gastón de Orta (LU 244/11) [gaston.deorta@hotmail.com](gaston.deorta@hotmail.com)
 - Lautaro José Petaccion (LU 443/11) [lausuper@gmail.com](lausuper@gmail.com)
 
-Instrucciones
--------------
+Cómo correr el código
+---------------------
 
 - Ir a la línea de comandos.
 - Cambiar al directorio con el código del TP (`cd directorio/con/el/codigo`.)
