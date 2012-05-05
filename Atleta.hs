@@ -28,7 +28,7 @@ ciaNumberA (A _ _ _ _ ciaNumber _) = ciaNumber
 deportesA :: Atleta -> [(Deporte, Int)]
 deportesA (A _ _ _ _ _ deportes) = deportes
 
---capacidadA :: Atleta -> Deporte -> Int
---capacidadA (A _ _ _ _ _ dep:deps) deporte | (fst dep) == deporte = (snd dep)
-capacidadA = undefined
+capacidadA :: Atleta -> Deporte -> Int
+capacidadA (A _ _ _ _ _ (dep:deps)) deporte | (fst dep) == deporte = (snd dep)
+
 entrenarDeporteA = undefined
