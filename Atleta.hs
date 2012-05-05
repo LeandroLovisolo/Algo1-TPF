@@ -31,4 +31,17 @@ deportesA (A _ _ _ _ _ deportes) = deportes
 capacidadA :: Atleta -> Deporte -> Int
 capacidadA (A _ _ _ _ _ (dep:deps)) deporte | (fst dep) == deporte = (snd dep)
 
-entrenarDeporteA = undefined
+auxExisteDeporte :: [(Deporte, Int)] -> Deporte -> Bool
+auxExisteDeporte [] _ = False
+auxExisteDeporte (x:xs) dep | (fst x) == dep = True
+							| otherwise = auxExisteDeporte xs dep
+
+auxModificaCapacidad :: [(Deporte, Int)] -> Deporte -> Int -> [(Deporte, Int)]
+auxModificaCapacidad [] _ _ = []
+auxModificaCapacidad (deporte:ldeportes) depAModificar capAModificar | (fst deporte) == depAModificar = ((fst deporte), capAModificar) : (auxModificaCapacidad ldeportes depAModificar capAModificar)
+																	 | otherwise = deporte : (auxModificaCapacidad ldeportes depAModificar capAModificar)
+
+--auxAgregarDeporte :: [(Deporte, Int)] -> Deporte -> Int -> [(Deporte, Int)]
+entrenarDeporteA :: Atleta -> Deporte -> Int -> Atleta
+entrenarDeporteA (A nombre sexo anio pais cia deportes) depPorAgregar capPorAgregar | auxExisteDeporte deportes depPorAgregar = (A nombre sexo anio pais cia (auxModificaCapacidad deportes depPorAgregar capPorAgregar) )
+--																					| otherwise = (A nombre sexo anio pais cia (auxAgregarDeporte deportes depPorAgregar capPorAgregar))
