@@ -47,7 +47,8 @@ auxModificaCapacidad (deporte:ldeportes) depAModificar capAModificar | (fst depo
 
 auxAgregarDeporte :: [(Deporte, Int)] -> Deporte -> Int -> [(Deporte, Int)]
 auxAgregarDeporte [] a b = [(a,b)]
-auxAgregarDeporte (xs) dep cap = (dep,cap):xs
+auxAgregarDeporte (x:xs) dep cap | dep <= fst x = (dep,cap): (x:xs)
+								| dep > fst x = x: auxAgregarDeporte xs dep cap
 
 entrenarDeporteA :: Atleta -> Deporte -> Int -> Atleta
 entrenarDeporteA (A nombre sexo anio pais cia deportes) depPorAgregar capPorAgregar | auxExisteDeporte deportes depPorAgregar = (A nombre sexo anio pais cia (auxModificaCapacidad deportes depPorAgregar capPorAgregar) )
