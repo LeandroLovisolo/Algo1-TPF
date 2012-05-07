@@ -1,4 +1,4 @@
-module Competencia (Competencia(..), nuevaC, categoriaC, participantesC,
+module Competencia (Competencia, nuevaC, categoriaC, participantesC,
                     finalizadaC, rankingC, lesTocoControlAntiDopingC,
                     leDioPositivoC, finalizarC, linfordChristieC,
                     gananLosMasCapacesC, sancionarTrampososC)
@@ -35,6 +35,10 @@ auxAletasConCia :: [Int] -> [Atleta] -> [Atleta]
 auxAletasConCia _ [] = []
 auxAletasConCia ciaNumbers (atle:atletas) | elem (ciaNumberA atle) ciaNumbers = atle : (auxAletasConCia ciaNumbers atletas)
 										  | otherwise = auxAletasConCia ciaNumbers atletas
+auxAtletaConCia :: Int -> [Atleta] -> Atleta
+auxAtletaConCia cia (atle:atletas) | (ciaNumberA atle) == cia = atle
+                                   | otherwise = auxAtletaConCia cia atletas
+
 auxCiaDoppingVerdadero :: [(Int, Bool)] -> [Int] 
 auxCiaDoppingVerdadero [] = []
 auxCiaDoppingVerdadero (x:xs) | (snd x) == True = (fst x) : auxCiaDoppingVerdadero xs
@@ -64,7 +68,7 @@ auxSinTramposos (rank:ranking) dopping | elem rank (auxCiaDoppingVerdadero doppi
 sancionarTrampososC :: Competencia -> Competencia
 sancionarTrampososC (Finalizar ranking dopping compe) = Finalizar (auxSinTramposos ranking dopping) dopping compe
 
-gananLosMasCapacesC = undefined
---gananLosMasCapacesC :: Competencia -> Bool
---gananLosMasCapacesC (Finalizar [x] dopping compe) = True
---gananLosMasCapacesC (Finalizar (frank:srank:ranking) dopping compe) = (capacidadA ((auxAletasConCia frank)!!0) (fst (categoriaC compe)) >= capacidadA ((auxAletasConCia srank)!!0) (fst (categoriaC compe))) && gananLosMasCapacesC (Finalizar ranking dopping compe)
+gananLosMasCapacesC :: Competencia -> Bool
+gananLosMasCapacesC (Finalizar [] dopping compe) = True
+gananLosMasCapacesC (Finalizar [x] dopping compe) = True
+gananLosMasCapacesC (Finalizar (frank:srank:ranking) dopping compe) = (capacidadA (auxAtletaConCia frank (participantesC compe)) (fst (categoriaC compe))) >= (capacidadA (auxAtletaConCia srank (participantesC compe)) (fst (categoriaC compe))) && gananLosMasCapacesC (Finalizar ranking dopping compe)
