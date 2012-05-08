@@ -2,7 +2,7 @@ module JJOO (JJOO(..), nuevoJ, anioJ, atletasJ, cantDiasJ, cronogramaJ,
              jornadaActualJ, dePaseoJ, medalleroJ,
              boicotPorDisciplinaJ, losMasFracasadosJ, liuSongJ,
              stevenBradburyJ, uyOrdenadoAsiHayUnPatronJ, sequiaOlimpicaJ,
-             transcurrirDiaJ)
+             transcurrirDiaJ, auxPodio, paisPodio, auxPaisMedallas, compHastaHoy, auxSacarAtletas, auxExisteAtletaConCia, auxDePaseoJ)
 where
 
 import Tipos
@@ -45,6 +45,7 @@ dePaseoJ juegos = auxDePaseoJ juegos (atletasJ juegos)
 auxExisteAtletaConCia :: [Atleta] -> Int -> Bool
 auxExisteAtletaConCia [] _ = False
 auxExisteAtletaConCia (atle:atletas) cia | ((ciaNumberA atle) == cia) = True
+										 | otherwise = auxExisteAtletaConCia atletas cia
 
 auxSacarAtletas :: [Atleta] -> [Atleta] -> [Atleta]
 auxSacarAtletas atletas [] = []
@@ -55,10 +56,29 @@ auxDePaseoJ :: JJOO -> [Atleta] -> [Atleta]
 auxDePaseoJ (J _ _ _) atles = atles
 auxDePaseoJ (NuevoDia (compe:competencias) juegos) atles = auxDePaseoJ (NuevoDia competencias juegos) (auxSacarAtletas atles (participantesC compe))
 auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
+-- los otros 2 auxiliares funcionan, ya no dan error pero este auxDePaseoJ me da siempre vacio
 -------------------------------------------------------------------------------------------------------------------------------
-
+-- falta armarlo, me trabe despues lo sigo
 medalleroJ                = undefined
---medalleroJ ::JJOO -> [(Pais, [Int])]
+medalleroJ ::JJOO -> [(Pais, [Int])]
+
+auxPodio :: Competencia->[Atleta]
+auxPodio (Finalizar ciaNum dopping compe) | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))<3 = []
+										  | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) >= 3 = head (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) : head (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))) : head (tail (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))))) : []
+										  -- si el ranking tiene mas de 3 atletas me da la lista de los primeros 3
+
+auxpaisPodio :: [Atleta]->[Pais]
+auxpaisPodio [] = []
+auxpaisPodio (atleta:atletas) = nacionalidadA atleta : paisPodio atletas
+
+auxPaisMedallas :: [[Pais]] ->(Pais,[Int])-> (Pais,[Int])
+auxPaisMedallas [] (p, [a,b,c]) = (p,[a,b,c])
+auxPaisMedallas (pais:paises) (p, [a,b,c]) | (pais!!0)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a+1,b,c]) 
+							               | (pais!!1)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a,b+1,c])
+							   			   | (pais!!2)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a,b,c+1])
+
+---------------------------------------------------------------------------------------------------------------------------------
+
 boicotPorDisciplinaJ      = undefined
 losMasFracasadosJ         = undefined
 liuSongJ                  = undefined
@@ -66,7 +86,7 @@ stevenBradburyJ           = undefined
 uyOrdenadoAsiHayUnPatronJ = undefined
 sequiaOlimpicaJ           = undefined
 transcurrirDiaJ           = undefined
-transcurrirDiaJ           = undefined
+transcurrirDia           = undefined
 
 
 --Prototipo de transcurrir dia, falta auxCrearRanking y asignar algun al dopping!
