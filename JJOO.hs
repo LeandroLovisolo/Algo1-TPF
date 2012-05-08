@@ -60,22 +60,22 @@ auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
 -------------------------------------------------------------------------------------------------------------------------------
 -- falta armarlo, me trabe despues lo sigo
 medalleroJ                = undefined
-medalleroJ ::JJOO -> [(Pais, [Int])]
+--medalleroJ ::JJOO -> [(Pais, [Int])]
 
-auxPodio :: Competencia->[Atleta]
-auxPodio (Finalizar ciaNum dopping compe) | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))<3 = []
-										  | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) >= 3 = head (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) : head (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))) : head (tail (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))))) : []
+--auxPodio :: Competencia->[Atleta]
+--auxPodio (Finalizar ciaNum dopping compe) | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))<3 = []
+--										  | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) >= 3 = head (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) : head (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))) : head (tail (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))))) : []
 										  -- si el ranking tiene mas de 3 atletas me da la lista de los primeros 3
 
-auxpaisPodio :: [Atleta]->[Pais]
-auxpaisPodio [] = []
-auxpaisPodio (atleta:atletas) = nacionalidadA atleta : paisPodio atletas
+--auxpaisPodio :: [Atleta]->[Pais]
+--auxpaisPodio [] = []
+--auxpaisPodio (atleta:atletas) = nacionalidadA atleta : paisPodio atletas
 
-auxPaisMedallas :: [[Pais]] ->(Pais,[Int])-> (Pais,[Int])
-auxPaisMedallas [] (p, [a,b,c]) = (p,[a,b,c])
-auxPaisMedallas (pais:paises) (p, [a,b,c]) | (pais!!0)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a+1,b,c]) 
-							               | (pais!!1)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a,b+1,c])
-							   			   | (pais!!2)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a,b,c+1])
+--auxPaisMedallas :: [[Pais]] ->(Pais,[Int])-> (Pais,[Int])
+--auxPaisMedallas [] (p, [a,b,c]) = (p,[a,b,c])
+--auxPaisMedallas (pais:paises) (p, [a,b,c]) | (pais!!0)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a+1,b,c])
+--							               | (pais!!1)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a,b+1,c])
+--							   			   | (pais!!2)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a,b,c+1])
 
 ---------------------------------------------------------------------------------------------------------------------------------
 
