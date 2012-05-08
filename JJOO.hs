@@ -66,3 +66,25 @@ stevenBradburyJ           = undefined
 uyOrdenadoAsiHayUnPatronJ = undefined
 sequiaOlimpicaJ           = undefined
 transcurrirDiaJ           = undefined
+transcurrirDiaJ           = undefined
+
+
+--Prototipo de transcurrir dia, falta auxCrearRanking y asignar algun al dopping!
+--En caso de que la especificacion este mal, porque dice que requiere que no sea el ultimo pero el invariante admite que sea el ultimo dia
+auxAumentarDia :: Int -> Int -> Int
+auxAumentarDia diaActual maxDias | diaActual < maxDias = diaActual + 1
+								 | diaActual == maxDias = diaActual
+
+--auxCrearRanking :: [Atleta] -> Categoria -> [Atleta]
+
+
+--auxFinalizarCompetencias :: [Competencia] -> [Competencia]
+--auxFinalizarCompetencias [] = []
+--auxFinalizarCompetencias (compe:competencias) = (finalizarC (auxCrearRanking (participantesC compe) (categoriaC compe)) dopping compe) : (auxFinalizarCompetencias competencias)
+
+--transcurrirDiaJ :: JJOO -> JJOO
+--transcurrirDiaJ juegos = auxTranscurrirDiaJ juegos (jornadaActualJ juegos)
+--auxTranscurrirDiaJ :: JJOO -> Int -> JJOO
+--auxTranscurrirDiaJ (J _ _ diaActual) _ = (J _ _ auxAumentarDia (diaActual+1))
+--auxTranscurrirDiaJ (NuevoDia competencias juegos) 0 = (NuevoDia (auxFinalizarCompetencias competencias) juegos) (-1)
+--auxTranscurrirDiaJ (NuevoDia _ juegos) i = auxTranscurrirDiaJ juegos (i-1)
