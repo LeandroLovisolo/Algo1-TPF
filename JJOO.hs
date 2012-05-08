@@ -2,7 +2,7 @@ module JJOO (JJOO(..), nuevoJ, anioJ, atletasJ, cantDiasJ, cronogramaJ,
              jornadaActualJ, dePaseoJ, medalleroJ,
              boicotPorDisciplinaJ, losMasFracasadosJ, liuSongJ,
              stevenBradburyJ, uyOrdenadoAsiHayUnPatronJ, sequiaOlimpicaJ,
-             transcurrirDiaJ)
+             transcurrirDiaJ,)
 where
 
 import Tipos
@@ -38,7 +38,6 @@ jornadaActualJ :: JJOO -> Int
 jornadaActualJ (J _ _ jornadaActual) = jornadaActual
 jornadaActualJ (NuevoDia _ juegos) = jornadaActualJ juegos
 
---Prototipo de dePaseoJ--Error de pattern matching, a ver si alguien lo puede ver ------------------------------------------------
 dePaseoJ :: JJOO -> [Atleta]
 dePaseoJ juegos = auxDePaseoJ juegos (atletasJ juegos)
 
@@ -56,12 +55,12 @@ auxDePaseoJ :: JJOO -> [Atleta] -> [Atleta]
 auxDePaseoJ (J _ _ _) atles = atles
 auxDePaseoJ (NuevoDia (compe:competencias) juegos) atles = auxDePaseoJ (NuevoDia competencias juegos) (auxSacarAtletas atles (participantesC compe))
 auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
--- los otros 2 auxiliares funcionan, ya no dan error pero este auxDePaseoJ me da siempre vacio
 -------------------------------------------------------------------------------------------------------------------------------
 -- falta armarlo, me trabe despues lo sigo
 medalleroJ                = undefined
 --medalleroJ ::JJOO -> [(Pais, [Int])]
 
+--No se puede usar Finalizar! constructor de competencia
 --auxPodio :: Competencia->[Atleta]
 --auxPodio (Finalizar ciaNum dopping compe) | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))<3 = []
 --										  | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) >= 3 = head (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) : head (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))) : head (tail (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))))) : []
