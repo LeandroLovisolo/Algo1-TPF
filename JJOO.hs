@@ -78,7 +78,7 @@ medalleroJ                = undefined
 
 ---------------------------------------------------------------------------------------------------------------------------------
 
-boicotPorDisciplinaJ      = undefined
+
 losMasFracasadosJ         = undefined
 liuSongJ                  = undefined
 stevenBradburyJ           = undefined
@@ -106,3 +106,24 @@ auxAumentarDia diaActual maxDias | diaActual < maxDias = diaActual + 1
 --auxTranscurrirDiaJ (J _ _ diaActual) _ = (J _ _ auxAumentarDia (diaActual+1))
 --auxTranscurrirDiaJ (NuevoDia competencias juegos) 0 = (NuevoDia (auxFinalizarCompetencias competencias) juegos) (-1)
 --auxTranscurrirDiaJ (NuevoDia _ juegos) i = auxTranscurrirDiaJ juegos (i-1)
+
+nuevoJConJornadaActual :: Int -> [Atleta] -> [[Competencia]] -> Int -> JJOO
+nuevoJConJornadaActual anio atletas [] jornada = (J anio atletas jornada)
+nuevoJConJornadaActual anio atletas (compe:competencias) _ = NuevoDia compe (nuevoJ anio atletas competencias)
+
+auxSacarAtletasConPais :: [Atleta] -> Pais -> [Atleta]
+auxSacarAtletasConPais [] _ = []
+auxSacarAtletasConPais (atle:atletas) pais | (nacionalidadA atle) /= pais = atle : auxSacarAtletasConPais atletas pais
+										   | otherwise = auxSacarAtletasConPais atletas pais
+
+auxNuevasCompetenciasSinAtletasConPaisYCat :: [Competencia] -> Pais -> Categoria -> [Competencia]
+auxNuevasCompetenciasSinAtletasConPaisYCat [] _ _ = []
+auxNuevasCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat | (categoriaC compe == cat) = (nuevaC (fst(categoriaC compe)) (snd(categoriaC compe)) (auxSacarAtletasConPais (participantesC compe) pais)) : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
+																   		 | otherwise = compe : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
+
+auxRecorreCronograma :: JJOO -> (Deporte, Sexo) -> Pais -> [[Competencia]]
+auxRecorreCronograma (J _ _ _) _ _ = []
+auxRecorreCronograma (NuevoDia competencias juegos) cate pais = (auxRecorreCronograma juegos cate pais) ++ [(auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cate)]
+
+boicotPorDisciplinaJ :: JJOO -> (Deporte, Sexo) -> Pais -> JJOO
+boicotPorDisciplinaJ juegos cat pais = nuevoJConJornadaActual  (anioJ juegos) (atletasJ juegos) (auxRecorreCronograma juegos cat pais) (jornadaActualJ juegos)
