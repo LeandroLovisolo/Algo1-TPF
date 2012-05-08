@@ -2,7 +2,7 @@ module JJOO (JJOO(..), nuevoJ, anioJ, atletasJ, cantDiasJ, cronogramaJ,
              jornadaActualJ, dePaseoJ, medalleroJ,
              boicotPorDisciplinaJ, losMasFracasadosJ, liuSongJ,
              stevenBradburyJ, uyOrdenadoAsiHayUnPatronJ, sequiaOlimpicaJ,
-             transcurrirDiaJ, auxPodio, paisPodio, auxPaisMedallas, compHastaHoy, auxSacarAtletas, auxExisteAtletaConCia, auxDePaseoJ)
+             transcurrirDiaJ)
 where
 
 import Tipos
@@ -86,7 +86,6 @@ stevenBradburyJ           = undefined
 uyOrdenadoAsiHayUnPatronJ = undefined
 sequiaOlimpicaJ           = undefined
 transcurrirDiaJ           = undefined
-transcurrirDia           = undefined
 
 
 --Prototipo de transcurrir dia, falta auxCrearRanking y asignar algun al dopping!
