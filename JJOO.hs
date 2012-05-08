@@ -55,10 +55,29 @@ auxDePaseoJ :: JJOO -> [Atleta] -> [Atleta]
 auxDePaseoJ (J _ _ _) atles = atles
 auxDePaseoJ (NuevoDia (compe:competencias) juegos) atles = auxDePaseoJ (NuevoDia competencias juegos) (auxSacarAtletas atles (participantesC compe))
 auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
+
+
 -------------------------------------------------------------------------------------------------------------------------------
 
-medalleroJ                = undefined
---medalleroJ ::JJOO -> [(Pais, [Int])]
+
+medalleroJ :: JJOO -> [(Pais, [Integer])]
+medalleroJ = undefined
+
+auxCompetenciasFinalizadas :: JJOO -> [Competencia]
+auxCompetenciasFinalizadas = undefined
+
+-- Dada una lista de competencias finalizas y una posición, devuelve
+-- todos los atletas que finalizaron en esa posición.
+auxMedallistas :: [Competencia] -> Int -> [Atleta]
+auxMedallistas [] m = []
+auxMedallistas (x:xs) m
+	| (length (rankingC x)) < m = auxMedallistas xs m
+	| otherwise                 = (rankingC x !! m) : auxMedallistas xs m
+
+
+-------------------------------------------------------------------------------
+
+
 boicotPorDisciplinaJ      = undefined
 losMasFracasadosJ         = undefined
 liuSongJ                  = undefined
