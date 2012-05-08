@@ -63,7 +63,7 @@ linfordChristieC (Participar atle compe) atletaASacar | (ciaNumberA atle) /= (ci
 
 auxSinTramposos :: [Int] -> [(Int, Bool)] -> [Int]
 auxSinTramposos [] _ = []
-auxSinTramposos _ [] = _
+auxSinTramposos rank [] = rank
 auxSinTramposos (rank:ranking) dopping | elem rank (auxCiaDoppingVerdadero dopping) = auxSinTramposos ranking dopping
 									   | otherwise = rank : (auxSinTramposos ranking dopping)
 
