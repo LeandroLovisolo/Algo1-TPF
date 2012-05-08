@@ -97,18 +97,18 @@ auxAumentarDia diaActual maxDias | diaActual < maxDias = diaActual + 1
 --El auxOrdenar los ordenar de menor a mayor, para que los ordene de mayor a menor hay que poner un reverse antes de auxOrdenar en el auxCrearRanking
 auxCrearRanking :: [Atleta] -> Categoria -> [Atleta]
 auxCrearRanking [] cat = []
-auxCrearRanking (atle:atletas) cat |elem ( fst(cat) deportesA (atle)) = auxOrdenar(atle:(auxCrearRanking atletas cat))
-								   |otherwise =auxOrdenar (auxCrearRanking atletas cat)
+auxCrearRanking (atle:atletas) cat |elem ( fst(cat) deportesA (atle)) = auxOrdenar(atle:(auxCrearRanking atletas cat)) cat
+								   |otherwise =auxOrdenar (auxCrearRanking atletas cat) cat
 								   
-auxOrdenar:: [Atletla]->[Atleta]
-auxOrdenar [] =[]
-auxOrdenar (atle:[]) = [atle]
-auxOrdenar atletas = (auxOrdenar (auxSacaUnaVez atletas (auxPrimero atletas))) ++ [auxPrimero atletas]
+auxOrdenar:: [Atletla]-> Categoria ->[Atleta]
+auxOrdenar [] cat =[]
+auxOrdenar (atle:[]) cat = [atle]
+auxOrdenar atletas  cat = (auxOrdenar (auxSacaUnaVez atletas (auxPrimero atletas cat))) ++ [auxPrimero atletas cat]
 
-auxPrimero::[Atleta]->Atleta
-auxPrimero (atle:[]) = atle
-auxPrimero (atle:atletas) |atle>head (atletas) = auxPrimero(atle:tail (atletas))
-						  |otherwise = auxPrimero (atletas)
+auxPrimero::[Atleta]-> Categoria->Atleta
+auxPrimero (atle:[]) cat = atle
+auxPrimero (atle:atletas) cat |capacidadA (atle fst(cat)) > capacidadA (head (atletas) fst(cat))  = auxPrimero((atle:tail (atletas)) cat)
+						  |otherwise = auxPrimero (atletas) cat
 
 auxSacaUnaVez :: [atleta]->atleta->[atleta]
 auxSacaUnaVez [] at = [] 
