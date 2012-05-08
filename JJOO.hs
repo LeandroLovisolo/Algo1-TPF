@@ -92,8 +92,28 @@ transcurrirDiaJ           = undefined
 auxAumentarDia :: Int -> Int -> Int
 auxAumentarDia diaActual maxDias | diaActual < maxDias = diaActual + 1
 								 | diaActual == maxDias = diaActual
+								 
+--Si la lista de atletas inicial no tiene repetidos entonces funciona, si no habri que buscar una forma de sacar los repetidos. 
+--El auxOrdenar los ordenar de menor a mayor, para que los ordene de mayor a menor hay que poner un reverse antes de auxOrdenar en el auxCrearRanking
+auxCrearRanking :: [Atleta] -> Categoria -> [Atleta]
+auxCrearRanking [] cat = []
+auxCrearRanking (atle:atletas) cat |elem ( fst(cat) deportesA (atle)) = auxOrdenar(atle:(auxCrearRanking atletas cat))
+								   |otherwise =auxOrdenar (auxCrearRanking atletas cat)
+								   
+auxOrdenar:: [Atletla]->[Atleta]
+auxOrdenar [] =[]
+auxOrdenar (atle:[]) = [atle]
+auxOrdenar atletas = (auxOrdenar (auxSacaUnaVez atletas (auxPrimero atletas))) ++ [auxPrimero atletas]
 
---auxCrearRanking :: [Atleta] -> Categoria -> [Atleta]
+auxPrimero::[Atleta]->Atleta
+auxPrimero (atle:[]) = atle
+auxPrimero (atle:atletas) |atle>head (atletas) = auxPrimero(atle:tail (atletas))
+						  |otherwise = auxPrimero (atletas)
+
+auxSacaUnaVez :: [atleta]->atleta->[atleta]
+auxSacaUnaVez [] at = [] 
+auxSacaUnaVez (atle:atletas) at |atle == at = atletas
+								|otherwise = atle:(auxSacaUnaVez atletas at)
 
 
 --auxFinalizarCompetencias :: [Competencia] -> [Competencia]
