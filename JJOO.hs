@@ -95,26 +95,28 @@ auxAumentarDia diaActual maxDias | diaActual < maxDias = diaActual + 1
 								 
 --Si la lista de atletas inicial no tiene repetidos entonces funciona, si no habri que buscar una forma de sacar los repetidos. 
 --El auxOrdenar los ordenar de menor a mayor, para que los ordene de mayor a menor hay que poner un reverse antes de auxOrdenar en el auxCrearRanking
-auxCrearRanking :: [Atleta] -> Categoria -> [Atleta]
-auxCrearRanking [] cat = []
-auxCrearRanking (atle:atletas) cat |elem ( fst(cat) deportesA (atle)) = auxOrdenar(atle:(auxCrearRanking atletas cat)) cat
+--auxCrearRanking :: [Atleta] -> Categoria -> [Atleta]
+--auxCrearRanking [] cat = []
+--auxCrearRanking (atle:atletas) cat |elem ( fst(cat) deportesA (atle)) = auxOrdenar(atle:(auxCrearRanking atletas cat)) cat
 								   |otherwise =auxOrdenar (auxCrearRanking atletas cat) cat
 								   
-auxOrdenar:: [Atletla]-> Categoria ->[Atleta]
-auxOrdenar [] cat =[]
-auxOrdenar (atle:[]) cat = [atle]
-auxOrdenar atletas  cat = (auxOrdenar (auxSacaUnaVez atletas (auxPrimero atletas cat))) ++ [auxPrimero atletas cat]
+--auxOrdenar:: [Atleta]-> Categoria ->[Atleta]
+--auxOrdenar [] cat =[]
+--auxOrdenar (atle:[]) cat = [atle]
+--auxOrdenar atletas  cat = (auxOrdenar (auxSacaUnaVez atletas (auxPrimero atletas cat))) ++ [auxPrimero atletas cat]
 
-auxPrimero::[Atleta]-> Categoria->Atleta
-auxPrimero (atle:[]) cat = atle
-auxPrimero (atle:atletas) cat |capacidadA (atle fst(cat)) > capacidadA (head (atletas) fst(cat))  = auxPrimero((atle:tail (atletas)) cat)
-						  |otherwise = auxPrimero (atletas) cat
+--auxPrimero::[Atleta]-> Categoria->Atleta
+--auxPrimero (atle:[]) cat = atle
+--auxPrimero (atle:atletas) cat |capacidadA atle (fst(cat)) > capacidadA (head (atletas)) (fst(cat))  = auxPrimero (atle:(tail atletas)) (atletas) cat
+						 	  |otherwise = auxPrimero (atletas) cat
 
-auxSacaUnaVez :: [atleta]->atleta->[atleta]
-auxSacaUnaVez [] at = [] 
-auxSacaUnaVez (atle:atletas) at |atle == at = atletas
-								|otherwise = atle:(auxSacaUnaVez atletas at)
-
+auxSacaUnaVez :: [Atleta]-> Atleta -> [Atleta]
+auxSacaUnaVez [] at = []
+auxSacaUnaVez (atle:atletas) at |(ciaNumberA atle) == (ciaNumberA at) = auxSacaUnaVez atletas at
+								|otherwise = atle : (auxSacaUnaVez atletas at)
+reverso :: [a] -> [a]
+reverso [] = []
+reverso (x:xs) = (reverso xs) ++ [x]
 
 --auxFinalizarCompetencias :: [Competencia] -> [Competencia]
 --auxFinalizarCompetencias [] = []
