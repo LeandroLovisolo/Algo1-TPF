@@ -18,6 +18,7 @@ nuevoJ :: Int -> [Atleta] -> [[Competencia]] -> JJOO
 nuevoJ anio atletas [] = (J anio atletas 1)
 nuevoJ anio atletas (compe:competencias) = NuevoDia compe (nuevoJ anio atletas competencias)
 
+
 anioJ :: JJOO -> Int
 anioJ (J anio _ _) = anio
 anioJ (NuevoDia _ juegos) = anioJ juegos
@@ -30,9 +31,11 @@ cantDiasJ :: JJOO -> Int
 cantDiasJ (J _ _ _) = 0
 cantDiasJ (NuevoDia _ juegos) = 1 + cantDiasJ juegos
 
+--cronograma anterior daba los resultados al revez, el 1er dia mostraba las competencias del ultimo NuevoDia
 cronogramaJ :: JJOO -> Int -> [Competencia]
-cronogramaJ (NuevoDia competencias juegos) dias | (dias-1) /= 0 = cronogramaJ juegos (dias-1)
-												| otherwise = competencias
+cronogramaJ (J _ _ _) _ = []
+cronogramaJ (NuevoDia competencias juegos) dias | dias == cantDiasJ juegos+1	 = competencias
+												| otherwise = cronogramaJ juegos dias
 
 jornadaActualJ :: JJOO -> Int
 jornadaActualJ (J _ _ jornadaActual) = jornadaActual
@@ -62,33 +65,44 @@ auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
 medalleroJ :: JJOO -> [(Pais, [Integer])]
 medalleroJ = undefined
 
-auxCompetenciasFinalizadas :: JJOO -> [Competencia]
-auxCompetenciasFinalizadas = undefined
+-- dado un jjoo y un dia devuelve ctas competencias finalizaron hasta el momento
+auxCompetenciasFinalizadas :: JJOO -> Int-> [Competencia]
+auxCompetenciasFinalizadas (J _ _ _) _ = []
+auxCompetenciasFinalizadas (NuevoDia competencias juegos) 0 = []
+auxCompetenciasFinalizadas (NuevoDia competencias juegos) jornadaActual  
+														                | jornadaActual == cantDiasJ (NuevoDia competencias juegos) = auxCompetenciasFinalizadasHoy (NuevoDia competencias juegos) ++ auxCompetenciasFinalizadas juegos jornadaActual
+														                | jornadaActual > cantDiasJ (NuevoDia competencias juegos) = cronogramaJ (NuevoDia competencias juegos) (cantDiasJ (NuevoDia competencias juegos)) ++ auxCompetenciasFinalizadas juegos jornadaActual
+														                | jornadaActual < cantDiasJ (NuevoDia competencias juegos) = auxCompetenciasFinalizadasHoy (NuevoDia competencias juegos) ++ auxCompetenciasFinalizadas juegos jornadaActual
+
+auxCompetenciasFinalizadasHoy :: JJOO->[Competencia]
+auxCompetenciasFinalizadasHoy (NuevoDia competencias juegos) = auxCompetencia (cronogramaJ (NuevoDia competencias juegos) (jornadaActualJ (NuevoDia competencias juegos)))
+
+auxCompetencia :: [Competencia]->[Competencia]
+auxCompetencia [] = []
+auxCompetencia (compe:competencias) | finalizadaC compe = compe : auxCompetencia competencias
+					    		    | otherwise = auxCompetencia competencias
 
 -- Dada una lista de competencias finalizas y una posición, devuelve
 -- todos los atletas que finalizaron en esa posición.
 auxMedallistas :: [Competencia] -> Int -> [Atleta]
 auxMedallistas [] m = []
 auxMedallistas (x:xs) m
-	| (length (rankingC x)) < m = auxMedallistas xs m
+	| (length (rankingC x)) < 3 = auxMedallistas xs m
 	| otherwise                 = (rankingC x !! m) : auxMedallistas xs m
 
+-- medalleroJ :: JJOO-> [(Pais, [Integer])]
+-- medalleroJ (J _ _ _) = []
+-- medalleroJ (NuevoDia competencias juegos) | auxPaisPodio (auxMedallistas (auxCompetenciasFinalizadas (NuevoDia competencias juegos) (jornadaActualJ (NuevoDia competencias juegos))) 0) 
 
---No se puede usar Finalizar! constructor de competencia
---auxPodio :: Competencia->[Atleta]
---auxPodio (Finalizar ciaNum dopping compe) | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))<3 = []
---										  | length (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) >= 3 = head (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))) : head (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe)))) : head (tail (tail (rankingC (sancionarTrampososC (Finalizar ciaNum dopping compe))))) : []
-										  -- si el ranking tiene mas de 3 atletas me da la lista de los primeros 3
 
---auxpaisPodio :: [Atleta]->[Pais]
---auxpaisPodio [] = []
---auxpaisPodio (atleta:atletas) = nacionalidadA atleta : paisPodio atletas
+auxPaisPodio :: [Atleta]->[Pais]
+auxPaisPodio [] = []
+auxPaisPodio (atleta:atletas) = nacionalidadA atleta : auxPaisPodio atletas
 
---auxPaisMedallas :: [[Pais]] ->(Pais,[Int])-> (Pais,[Int])
---auxPaisMedallas [] (p, [a,b,c]) = (p,[a,b,c])
---auxPaisMedallas (pais:paises) (p, [a,b,c]) | (pais!!0)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a+1,b,c])
---							               | (pais!!1)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a,b+1,c])
---							   			   | (pais!!2)==fst (p, [a,b,c]) = auxPaisMedallas paises (p,[a,b,c+1])
+-- auxPaisMedallas :: [(Pais,[Int])]-> [(Pais,[Int])]
+-- auxPaisMedallas [] = []
+-- auxPaisMedallas (p:pais:paises) | snd(p!!0)> snd(pais!!0) = auxPaisMedallas (p:paises)
+--							    | snd(p!!0)< snd(pais!!0) = auxPaisMedallas (pais:paises)
 
 ---------------------------------------------------------------------------------------------------------------------------------
 
