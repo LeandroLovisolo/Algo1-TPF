@@ -104,6 +104,27 @@ auxPaisPodio (atleta:atletas) = nacionalidadA atleta : auxPaisPodio atletas
 -- auxPaisMedallas (p:pais:paises) | snd(p!!0)> snd(pais!!0) = auxPaisMedallas (p:paises)
 --							    | snd(p!!0)< snd(pais!!0) = auxPaisMedallas (pais:paises)
 
+
+-- Datos de prueba. Devuelve una lista de competencias finalizadas.
+testCompetencias :: [Competencia]
+testCompetencias = [(competencia "Futbol" [333, 111, 222, 555, 444]),
+                   (competencia "Basket" [111, 555, 333, 444, 222]),
+                   (competencia "Volley" [555, 222, 444, 111, 333])]
+	where competencia deporte posiciones =
+		finalizarC (nuevaC deporte Masculino testAtletas) posiciones []
+
+-- Datos de prueba. Devuelve una lista de atletas entrenados en ciertos deportes.
+testAtletas :: [Atleta]
+testAtletas = map entrenarDeportes atletas 
+  where atletas = [(nuevoA "Abel"    Masculino 18 "Argentina" 111),
+                   (nuevoA "Beto"    Masculino 19 "Brasil"    222),
+                   (nuevoA "Carlos"  Masculino 20 "Chile"     333),
+                   (nuevoA "Daniel"  Masculino 21 "Dinamarca" 444),
+                   (nuevoA "Esteban" Masculino 22 "Ecuador"   555)]
+        deportes = ["Futbol", "Basket", "Volley"]
+        entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
+        entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte 10
+
 ---------------------------------------------------------------------------------------------------------------------------------
 
 
