@@ -342,6 +342,7 @@ liuSongJ (NuevoDia competencias juegos) atletaACambiar pais =
 -- Fin de liuSongJ ------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+
 -------------------------------------------------------------------------------
 -- uyOrdenadoAsiHayUnPatronJ --------------------------------------------------
 -------------------------------------------------------------------------------
@@ -369,11 +370,13 @@ auxPaisesGanadoresEnElDia [] paises = paises
 auxPaisesGanadoresEnElDia (compe:competencias) paises | (finalizadaC compe) && (length (rankingC compe) > 0) =
   auxPaisesGanadoresEnElDia competencias (auxMeterPais paises (nacionalidadA ((rankingC compe)!!0)))
                                                | otherwise = auxPaisesGanadoresEnElDia competencias paises
+
 ---------------------------------------------------------------------------------------------
 ---------------- Falta completar auxExistePatron --------------------------------------------
 auxExistePatron :: [Pais] -> Int -> Bool
 auxExistePatron x _ = True
 ----------------------------------------------------------------------------------------------
+
 uyOrdenadoAsiHayUnPatronJ :: JJOO -> Bool
 uyOrdenadoAsiHayUnPatronJ juegos = auxUyOrdenadoAsiHayUnPatronJ juegos []
 
@@ -387,6 +390,6 @@ auxUyOrdenadoAsiHayUnPatronJ (NuevoDia competencias juegos) paises | auxExisteAl
 -- Fin de uyOrdenadoAsiHayUnPatronJ -------------------------------------------
 -------------------------------------------------------------------------------
 
--- losMasFracasadosJ         = undefined
+
 stevenBradburyJ           = undefined
 sequiaOlimpicaJ           = undefined
