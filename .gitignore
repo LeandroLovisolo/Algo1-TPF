@@ -6,3 +6,4 @@ cabal-dev
 *.chs.h
 *.sublime-project
 *.sublime-workspace
+tests
