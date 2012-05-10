@@ -44,7 +44,10 @@ auxCiaDoppingVerdadero (x:xs) | (snd x) == True = (fst x) : auxCiaDoppingVerdade
 							  | otherwise = auxCiaDoppingVerdadero xs
 
 rankingC :: Competencia -> [Atleta]
-rankingC (Finalizar ciaNumbers _ compe) = auxAletasConCia ciaNumbers (participantesC compe)
+rankingC (Finalizar ciaNumbers _ c) = atletas ciaNumbers c
+	where atletas [] c = [];
+		  atletas (x:xs) c = (buscarAtleta x (participantesC c)) : (atletas xs c);
+		  buscarAtleta x (a:as) = if (ciaNumberA a) == x then a else (buscarAtleta x as);
 
 lesTocoControlAntiDopingC :: Competencia -> [Atleta]
 lesTocoControlAntiDopingC (Finalizar _ dopping compe) = auxAletasConCia (auxCiaDoppingVerdadero dopping) (participantesC compe)
