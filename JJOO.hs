@@ -1,4 +1,4 @@
-module JJOO (JJOO(..), nuevoJ, anioJ, atletasJ, cantDiasJ, cronogramaJ,
+module JJOO (JJOO, nuevoJ, anioJ, atletasJ, cantDiasJ, cronogramaJ,
              jornadaActualJ, dePaseoJ, medalleroJ,
              boicotPorDisciplinaJ, losMasFracasadosJ, liuSongJ,
              stevenBradburyJ, uyOrdenadoAsiHayUnPatronJ, sequiaOlimpicaJ,
@@ -245,9 +245,53 @@ auxSacarAtletasConPais (atle:atletas) pais
 -- Fin de boicotPorDisciplinaJ ------------------------------------------------
 -------------------------------------------------------------------------------
 
+-------------------------------------------------------------------------------
+-- liuSongJ -------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
+auxEntrenarDeportes :: Atleta -> Atleta -> [Deporte] -> Atleta
+auxEntrenarDeportes atleta atletaOriginal [] = atleta
+auxEntrenarDeportes atleta atletaOriginal (deporte:deportes) = 
+  auxEntrenarDeportes (entrenarDeporteA atleta deporte (capacidadA atletaOriginal deporte)) atletaOriginal deportes
+
+auxCambiaNacionalidadAtleta :: [Atleta] -> Atleta -> Pais -> [Atleta]
+auxCambiaNacionalidadAtleta [] _ _ = []
+auxCambiaNacionalidadAtleta (atle:atletas) atleACambiar pais | (ciaNumberA atle) == (ciaNumberA atleACambiar) = 
+    (auxEntrenarDeportes (nuevoA (nombreA atle) (sexoA atle) (anioNacimientoA atle) pais (ciaNumberA atle)) atle (deportesA atle)) :
+    (auxCambiaNacionalidadAtleta atletas atleACambiar pais)
+                                                             | otherwise = atle : (auxCambiaNacionalidadAtleta atletas atleACambiar pais)
+
+auxAtletasACias :: [Atleta] -> [Int]
+auxAtletasACias (atle:atletas) = (ciaNumberA atle) : (auxAtletasACias atletas)
+
+auxRecrearDopping :: Competencia -> [Atleta] -> [(Int,Bool)]
+auxRecrearDopping _ [] = []
+auxRecrearDopping compe (atle:atletas) = (ciaNumberA atle, leDioPositivoC compe atle) : (auxRecrearDopping compe atletas)
+
+auxCambiaNacionalidadAtletaEnCompetencia :: Competencia -> Atleta -> Pais -> Competencia
+auxCambiaNacionalidadAtletaEnCompetencia compe atletaACambiar pais | finalizadaC compe = 
+  finalizarC (nuevaC (fst(categoriaC compe)) 
+                (snd(categoriaC compe)) 
+                (auxCambiaNacionalidadAtleta (participantesC compe) atletaACambiar pais)) 
+              (auxAtletasACias (rankingC compe)) (auxRecrearDopping compe (lesTocoControlAntiDopingC compe))
+               | otherwise = nuevaC (fst(categoriaC compe)) 
+                                        (snd(categoriaC compe)) 
+                                        (auxCambiaNacionalidadAtleta (participantesC compe) atletaACambiar pais)
+
+auxProcesaCompetencias :: [Competencia] -> Atleta -> Pais -> [Competencia]
+auxProcesaCompetencias [] _ _ = []
+auxProcesaCompetencias (compe:competencias) atletaACambiar pais = 
+  (auxCambiaNacionalidadAtletaEnCompetencia compe atletaACambiar pais) : auxProcesaCompetencias competencias atletaACambiar pais
+
+liuSongJ :: JJOO -> Atleta -> Pais -> JJOO
+liuSongJ (J anio atletas jornadaActual) atletaACambiar pais = (J anio (auxCambiaNacionalidadAtleta atletas atletaACambiar pais) jornadaActual)
+liuSongJ (NuevoDia competencias juegos) atletaACambiar pais = 
+  (NuevoDia (auxProcesaCompetencias competencias atletaACambiar pais) (liuSongJ juegos atletaACambiar pais))
+
+-------------------------------------------------------------------------------
+-- Fin de liuSongJ -------------------------------------------------------------------
+-------------------------------------------------------------------------------
 losMasFracasadosJ         = undefined
-liuSongJ                  = undefined
 stevenBradburyJ           = undefined
 uyOrdenadoAsiHayUnPatronJ = undefined
 sequiaOlimpicaJ           = undefined
