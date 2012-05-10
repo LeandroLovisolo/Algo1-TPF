@@ -57,8 +57,9 @@ auxSacarAtletas :: [Atleta] -> [Atleta] -> [Atleta]
 auxSacarAtletas atletas [] = []
 auxSacarAtletas [] atletasParaSacar = []
 auxSacarAtletas (atle:atletas) atletasParaSacar
-    | auxExisteAtletaConCia atletasParaSacar (ciaNumberA atle) = auxSacarAtletas atletas atletasParaSacar
-    | otherwise                                                = atle : auxSacarAtletas atletas atletasParaSacar
+    | auxExisteAtletaConCia atletasParaSacar (ciaNumberA atle) =
+        auxSacarAtletas atletas atletasParaSacar
+    | otherwise = atle : auxSacarAtletas atletas atletasParaSacar
 
 auxExisteAtletaConCia :: [Atleta] -> Int -> Bool
 auxExisteAtletaConCia [] _ = False
@@ -217,26 +218,39 @@ auxAumentarDia diaActual maxDias
 -------------------------------------------------------------------------------
 
 boicotPorDisciplinaJ :: JJOO -> (Deporte, Sexo) -> Pais -> JJOO
-boicotPorDisciplinaJ juegos cat pais = nuevoJConJornadaActual  (anioJ juegos) (atletasJ juegos) (auxRecorreCronograma juegos cat pais) (jornadaActualJ juegos)
+boicotPorDisciplinaJ juegos cat pais =
+    nuevoJConJornadaActual (anioJ juegos)
+                           (atletasJ juegos)
+                           (auxRecorreCronograma juegos cat pais)
+                           (jornadaActualJ juegos)
 
 nuevoJConJornadaActual :: Int -> [Atleta] -> [[Competencia]] -> Int -> JJOO
 nuevoJConJornadaActual anio atletas [] jornada = (J anio atletas jornada)
-nuevoJConJornadaActual anio atletas (compe:competencias) _ = NuevoDia compe (nuevoJ anio atletas competencias)
+nuevoJConJornadaActual anio atletas (compe:competencias) _ =
+    NuevoDia compe (nuevoJ anio atletas competencias)
 
 auxRecorreCronograma :: JJOO -> (Deporte, Sexo) -> Pais -> [[Competencia]]
 auxRecorreCronograma (J _ _ _) _ _ = []
-auxRecorreCronograma (NuevoDia competencias juegos) cate pais = (auxRecorreCronograma juegos cate pais) ++ [(auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cate)]
+auxRecorreCronograma (NuevoDia competencias juegos) cate pais =
+    (auxRecorreCronograma juegos cate pais) ++ [(auxNuevasCompetenciasSinAtletasConPaisYCat
+                                                    competencias pais cate)]
 
 auxNuevasCompetenciasSinAtletasConPaisYCat :: [Competencia] -> Pais -> Categoria -> [Competencia]
 auxNuevasCompetenciasSinAtletasConPaisYCat [] _ _ = []
-auxNuevasCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat | (categoriaC compe == cat) = (nuevaC (fst(categoriaC compe)) (snd(categoriaC compe)) (auxSacarAtletasConPais (participantesC compe) pais)) : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
-                                                                         | otherwise = compe : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
+auxNuevasCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat
+    | (categoriaC compe == cat) =
+        (nuevaC (fst(categoriaC compe))
+                (snd(categoriaC compe))
+                (auxSacarAtletasConPais (participantesC compe) pais))
+            : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
+    | otherwise = compe : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
 
 
 auxSacarAtletasConPais :: [Atleta] -> Pais -> [Atleta]
 auxSacarAtletasConPais [] _ = []
-auxSacarAtletasConPais (atle:atletas) pais | (nacionalidadA atle) /= pais = atle : auxSacarAtletasConPais atletas pais
-                                           | otherwise = auxSacarAtletasConPais atletas pais
+auxSacarAtletasConPais (atle:atletas) pais
+    | (nacionalidadA atle) /= pais = atle : auxSacarAtletasConPais atletas pais
+    | otherwise                    = auxSacarAtletasConPais atletas pais
 
 -------------------------------------------------------------------------------
 -- Fin de boicotPorDisciplinaJ ------------------------------------------------
