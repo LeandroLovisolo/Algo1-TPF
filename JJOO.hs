@@ -159,41 +159,53 @@ transcurrirDiaJ juegos = auxTranscurrirDiaJ juegos ((cantDiasJ juegos)-(jornadaA
 auxTranscurrirDiaJ :: JJOO -> Int -> JJOO
 -- ver si usar auxAumentarDia
 auxTranscurrirDiaJ (J anio atletas diaActual) _ = (J anio atletas (diaActual+1))
-auxTranscurrirDiaJ (NuevoDia competencias juegos) 0 = (NuevoDia (auxFinalizarCompetencias competencias) (auxTranscurrirDiaJ juegos (-1)))
-auxTranscurrirDiaJ (NuevoDia competencias juegos) i = (NuevoDia competencias (auxTranscurrirDiaJ juegos (i-1)))
+auxTranscurrirDiaJ (NuevoDia competencias juegos) 0 =
+    (NuevoDia (auxFinalizarCompetencias competencias) (auxTranscurrirDiaJ juegos (-1)))
+auxTranscurrirDiaJ (NuevoDia competencias juegos) i =
+    (NuevoDia competencias (auxTranscurrirDiaJ juegos (i-1)))
 
 auxFinalizarCompetencias :: [Competencia] -> [Competencia]
 auxFinalizarCompetencias [] = []
-auxFinalizarCompetencias (compe:competencias) | finalizadaC compe = compe : (auxFinalizarCompetencias competencias)
-                        | otherwise =  (finalizarC compe (auxCrearRanking (participantesC compe) (categoriaC compe)) (auxCrearDopping compe)) : (auxFinalizarCompetencias competencias)
+auxFinalizarCompetencias (compe:competencias)
+    | finalizadaC compe = compe : (auxFinalizarCompetencias competencias)
+    | otherwise         = (finalizarC compe
+                                      (auxCrearRanking (participantesC compe) (categoriaC compe))
+                                      (auxCrearDopping compe))
+                                : (auxFinalizarCompetencias competencias)
 
---Si la lista de atletas inicial no tiene repetidos entonces funciona, si no habri que buscar una forma de sacar los repetidos. 
---El auxOrdenar los ordenar de menor a mayor, para que los ordene de mayor a menor hay que poner un reverse antes de auxOrdenar en el auxCrearRanking
+-- Si la lista de atletas inicial no tiene repetidos entonces funciona,
+-- si no habri que buscar una forma de sacar los repetidos. 
+-- El auxOrdenar los ordenar de menor a mayor, para que los ordene
+-- de mayor a menor hay que poner un reverse antes de auxOrdenar en el auxCrearRanking
 auxCrearRanking :: [Atleta] -> Categoria -> [Int]
 auxCrearRanking [] _ = []
-auxCrearRanking atletas cate = (ciaNumberA (auxMayorCapacidad atletas cate (head atletas))) : auxCrearRanking (auxSacaUnaVez atletas (auxMayorCapacidad atletas cate (head atletas))) cate
+auxCrearRanking atletas cate =
+    (ciaNumberA (auxMayorCapacidad atletas cate (head atletas))) :
+        (auxCrearRanking (auxSacaUnaVez atletas (auxMayorCapacidad
+                                                 atletas cate (head atletas))) cate)
 
 auxSacaUnaVez :: [Atleta]-> Atleta -> [Atleta]
 auxSacaUnaVez [] at = []
-auxSacaUnaVez (atle:atletas) at | (ciaNumberA atle) == (ciaNumberA at) = auxSacaUnaVez atletas at
-                | otherwise = atle : (auxSacaUnaVez atletas at)
+auxSacaUnaVez (atle:atletas) at
+    | (ciaNumberA atle) == (ciaNumberA at) = auxSacaUnaVez atletas at
+    | otherwise                            = atle : (auxSacaUnaVez atletas at)
 
 auxMayorCapacidad :: [Atleta] -> Categoria -> Atleta -> Atleta
 auxMayorCapacidad [] _ atleMax = atleMax
-auxMayorCapacidad (atleta:atletas) cate atleMax | (capacidadA atleta (fst cate)) >= (capacidadA atleMax (fst cate)) = auxMayorCapacidad atletas cate atleta
-                        | otherwise = auxMayorCapacidad atletas cate atleMax
-
+auxMayorCapacidad (atleta:atletas) cate atleMax
+    | (capacidadA atleta (fst cate)) >= (capacidadA atleMax (fst cate)) = 
+        auxMayorCapacidad atletas cate atleta
+    | otherwise = auxMayorCapacidad atletas cate atleMax
 
 auxCrearDopping :: Competencia -> [(Int, Bool)]
-auxCrearDopping compe | (length (participantesC compe) >=1) = [(ciaNumberA (head (participantesC compe)), True)]
-            | otherwise = []
+auxCrearDopping compe
+    | (length (participantesC compe) >=1) = [(ciaNumberA (head (participantesC compe)), True)]
+    | otherwise                           = []
 
-
---Prototipo de transcurrir dia, falta auxCrearRanking y asignar algun al dopping!
---En caso de que la especificacion este mal, porque dice que requiere que no sea el ultimo pero el invariante admite que sea el ultimo dia
 auxAumentarDia :: Int -> Int -> Int
-auxAumentarDia diaActual maxDias | diaActual < maxDias = diaActual + 1
-								 | diaActual == maxDias = diaActual
+auxAumentarDia diaActual maxDias
+    | diaActual < maxDias = diaActual + 1
+	| diaActual == maxDias = diaActual
 								 
 -------------------------------------------------------------------------------
 -- Fin de transcurrirDiaJ -----------------------------------------------------
