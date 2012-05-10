@@ -208,13 +208,6 @@ boicotPorDisciplinaJ (J anio atletas jornadaActual) _ _ = (J anio atletas jornad
 boicotPorDisciplinaJ (NuevoDia competencias juegos) cate pais = 
     (NuevoDia (auxCompetenciasSinAtletasConPaisYCat competencias pais cate) (boicotPorDisciplinaJ juegos cate pais))
 
-
-auxAtletasConCia :: [Int] -> [Atleta] -> [Atleta]
-auxAtletasConCia _ [] = []
-auxAtletasConCia ciaNumbers (atle:atletas)
-  | elem (ciaNumberA atle) ciaNumbers = atle : (auxAtletasConCia ciaNumbers atletas)
-  | otherwise = auxAtletasConCia ciaNumbers atletas
-
 auxRankingSinAtletasConPais :: [Atleta] -> Pais -> [Int]
 auxRankingSinAtletasConPais (atle:atletas) pais | (nacionalidadA atle) == pais = auxRankingSinAtletasConPais atletas pais
                                                 | otherwise = (ciaNumberA atle) : (auxRankingSinAtletasConPais atletas pais)
