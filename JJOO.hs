@@ -153,70 +153,83 @@ medalleroPorPais p j = (p, (medallero p j))
 -- transcurrirDiaJ ------------------------------------------------------------
 -------------------------------------------------------------------------------
 
---Prototipo de transcurrir dia, falta auxCrearRanking y asignar algun al dopping!
---En caso de que la especificacion este mal, porque dice que requiere que no sea el ultimo pero el invariante admite que sea el ultimo dia
-auxAumentarDia :: Int -> Int -> Int
-auxAumentarDia diaActual maxDias | diaActual < maxDias = diaActual + 1
-								 | diaActual == maxDias = diaActual
-								 
---Si la lista de atletas inicial no tiene repetidos entonces funciona, si no habri que buscar una forma de sacar los repetidos. 
---El auxOrdenar los ordenar de menor a mayor, para que los ordene de mayor a menor hay que poner un reverse antes de auxOrdenar en el auxCrearRanking
-auxCrearRanking :: [Atleta] -> Categoria -> [Int]
-auxCrearRanking [] _ = []
-auxCrearRanking atletas cate = (ciaNumberA (auxMayorCapacidad atletas cate (head atletas))) : auxCrearRanking (auxSacaUnaVez atletas (auxMayorCapacidad atletas cate (head atletas))) cate
-
-auxMayorCapacidad :: [Atleta] -> Categoria -> Atleta -> Atleta
-auxMayorCapacidad [] _ atleMax = atleMax
-auxMayorCapacidad (atleta:atletas) cate atleMax | (capacidadA atleta (fst cate)) >= (capacidadA atleMax (fst cate)) = auxMayorCapacidad atletas cate atleta
-                        | otherwise = auxMayorCapacidad atletas cate atleMax
-
-auxSacaUnaVez :: [Atleta]-> Atleta -> [Atleta]
-auxSacaUnaVez [] at = []
-auxSacaUnaVez (atle:atletas) at | (ciaNumberA atle) == (ciaNumberA at) = auxSacaUnaVez atletas at
-                | otherwise = atle : (auxSacaUnaVez atletas at)
-
-auxCrearDopping :: Competencia -> [(Int, Bool)]
-auxCrearDopping compe | (length (participantesC compe) >=1) = [(ciaNumberA (head (participantesC compe)), True)]
-            | otherwise = []
-
-auxFinalizarCompetencias :: [Competencia] -> [Competencia]
-auxFinalizarCompetencias [] = []
-auxFinalizarCompetencias (compe:competencias) | finalizadaC compe = compe : (auxFinalizarCompetencias competencias)
-                        | otherwise =  (finalizarC compe (auxCrearRanking (participantesC compe) (categoriaC compe)) (auxCrearDopping compe)) : (auxFinalizarCompetencias competencias)
-
 transcurrirDiaJ :: JJOO -> JJOO
 transcurrirDiaJ juegos = auxTranscurrirDiaJ juegos ((cantDiasJ juegos)-(jornadaActualJ juegos))
+
 auxTranscurrirDiaJ :: JJOO -> Int -> JJOO
 -- ver si usar auxAumentarDia
 auxTranscurrirDiaJ (J anio atletas diaActual) _ = (J anio atletas (diaActual+1))
 auxTranscurrirDiaJ (NuevoDia competencias juegos) 0 = (NuevoDia (auxFinalizarCompetencias competencias) (auxTranscurrirDiaJ juegos (-1)))
 auxTranscurrirDiaJ (NuevoDia competencias juegos) i = (NuevoDia competencias (auxTranscurrirDiaJ juegos (i-1)))
 
-nuevoJConJornadaActual :: Int -> [Atleta] -> [[Competencia]] -> Int -> JJOO
-nuevoJConJornadaActual anio atletas [] jornada = (J anio atletas jornada)
-nuevoJConJornadaActual anio atletas (compe:competencias) _ = NuevoDia compe (nuevoJ anio atletas competencias)
+auxFinalizarCompetencias :: [Competencia] -> [Competencia]
+auxFinalizarCompetencias [] = []
+auxFinalizarCompetencias (compe:competencias) | finalizadaC compe = compe : (auxFinalizarCompetencias competencias)
+                        | otherwise =  (finalizarC compe (auxCrearRanking (participantesC compe) (categoriaC compe)) (auxCrearDopping compe)) : (auxFinalizarCompetencias competencias)
 
-auxSacarAtletasConPais :: [Atleta] -> Pais -> [Atleta]
-auxSacarAtletasConPais [] _ = []
-auxSacarAtletasConPais (atle:atletas) pais | (nacionalidadA atle) /= pais = atle : auxSacarAtletasConPais atletas pais
-										   | otherwise = auxSacarAtletasConPais atletas pais
+--Si la lista de atletas inicial no tiene repetidos entonces funciona, si no habri que buscar una forma de sacar los repetidos. 
+--El auxOrdenar los ordenar de menor a mayor, para que los ordene de mayor a menor hay que poner un reverse antes de auxOrdenar en el auxCrearRanking
+auxCrearRanking :: [Atleta] -> Categoria -> [Int]
+auxCrearRanking [] _ = []
+auxCrearRanking atletas cate = (ciaNumberA (auxMayorCapacidad atletas cate (head atletas))) : auxCrearRanking (auxSacaUnaVez atletas (auxMayorCapacidad atletas cate (head atletas))) cate
 
-auxNuevasCompetenciasSinAtletasConPaisYCat :: [Competencia] -> Pais -> Categoria -> [Competencia]
-auxNuevasCompetenciasSinAtletasConPaisYCat [] _ _ = []
-auxNuevasCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat | (categoriaC compe == cat) = (nuevaC (fst(categoriaC compe)) (snd(categoriaC compe)) (auxSacarAtletasConPais (participantesC compe) pais)) : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
-																   		 | otherwise = compe : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
+auxSacaUnaVez :: [Atleta]-> Atleta -> [Atleta]
+auxSacaUnaVez [] at = []
+auxSacaUnaVez (atle:atletas) at | (ciaNumberA atle) == (ciaNumberA at) = auxSacaUnaVez atletas at
+                | otherwise = atle : (auxSacaUnaVez atletas at)
 
-auxRecorreCronograma :: JJOO -> (Deporte, Sexo) -> Pais -> [[Competencia]]
-auxRecorreCronograma (J _ _ _) _ _ = []
-auxRecorreCronograma (NuevoDia competencias juegos) cate pais = (auxRecorreCronograma juegos cate pais) ++ [(auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cate)]
+auxMayorCapacidad :: [Atleta] -> Categoria -> Atleta -> Atleta
+auxMayorCapacidad [] _ atleMax = atleMax
+auxMayorCapacidad (atleta:atletas) cate atleMax | (capacidadA atleta (fst cate)) >= (capacidadA atleMax (fst cate)) = auxMayorCapacidad atletas cate atleta
+                        | otherwise = auxMayorCapacidad atletas cate atleMax
 
+
+auxCrearDopping :: Competencia -> [(Int, Bool)]
+auxCrearDopping compe | (length (participantesC compe) >=1) = [(ciaNumberA (head (participantesC compe)), True)]
+            | otherwise = []
+
+
+--Prototipo de transcurrir dia, falta auxCrearRanking y asignar algun al dopping!
+--En caso de que la especificacion este mal, porque dice que requiere que no sea el ultimo pero el invariante admite que sea el ultimo dia
+auxAumentarDia :: Int -> Int -> Int
+auxAumentarDia diaActual maxDias | diaActual < maxDias = diaActual + 1
+								 | diaActual == maxDias = diaActual
+								 
 -------------------------------------------------------------------------------
 -- Fin de transcurrirDiaJ -----------------------------------------------------
 -------------------------------------------------------------------------------
 
 
+-------------------------------------------------------------------------------
+-- boicotPorDisciplinaJ -------------------------------------------------------
+-------------------------------------------------------------------------------
+
 boicotPorDisciplinaJ :: JJOO -> (Deporte, Sexo) -> Pais -> JJOO
 boicotPorDisciplinaJ juegos cat pais = nuevoJConJornadaActual  (anioJ juegos) (atletasJ juegos) (auxRecorreCronograma juegos cat pais) (jornadaActualJ juegos)
+
+nuevoJConJornadaActual :: Int -> [Atleta] -> [[Competencia]] -> Int -> JJOO
+nuevoJConJornadaActual anio atletas [] jornada = (J anio atletas jornada)
+nuevoJConJornadaActual anio atletas (compe:competencias) _ = NuevoDia compe (nuevoJ anio atletas competencias)
+
+auxRecorreCronograma :: JJOO -> (Deporte, Sexo) -> Pais -> [[Competencia]]
+auxRecorreCronograma (J _ _ _) _ _ = []
+auxRecorreCronograma (NuevoDia competencias juegos) cate pais = (auxRecorreCronograma juegos cate pais) ++ [(auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cate)]
+
+auxNuevasCompetenciasSinAtletasConPaisYCat :: [Competencia] -> Pais -> Categoria -> [Competencia]
+auxNuevasCompetenciasSinAtletasConPaisYCat [] _ _ = []
+auxNuevasCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat | (categoriaC compe == cat) = (nuevaC (fst(categoriaC compe)) (snd(categoriaC compe)) (auxSacarAtletasConPais (participantesC compe) pais)) : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
+                                                                         | otherwise = compe : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
+
+
+auxSacarAtletasConPais :: [Atleta] -> Pais -> [Atleta]
+auxSacarAtletasConPais [] _ = []
+auxSacarAtletasConPais (atle:atletas) pais | (nacionalidadA atle) /= pais = atle : auxSacarAtletasConPais atletas pais
+                                           | otherwise = auxSacarAtletasConPais atletas pais
+
+-------------------------------------------------------------------------------
+-- Fin de boicotPorDisciplinaJ ------------------------------------------------
+-------------------------------------------------------------------------------
+
 
 losMasFracasadosJ         = undefined
 liuSongJ                  = undefined
