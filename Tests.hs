@@ -64,12 +64,16 @@ runtests = runTestTT tests
 
 
 tests = TestList [
+        "rankingC: devuelve los atletas correctos" ~:
+            ["Abel", "Beto", "Carlos", "Daniel", "Esteban", "Federico", "Gabriel", "Horacio"]
+                @=? map nombreA (rankingC dataCompetencia),
+
         "lesTocoControlAntiDopingC: devuelve los atletas correctos" ~:
-            [222, 444] @=? map ciaNumberA (lesTocoControlAntiDopingC dataAntiDoping),
+            [222, 444] @=? map ciaNumberA (lesTocoControlAntiDopingC dataCompetencia),
 
         "leDioPositivoC: devuelve los valores correctos" ~:
-            [False, True] @=? map (\a -> leDioPositivoC dataAntiDoping a)
-                                  (lesTocoControlAntiDopingC dataAntiDoping),
+            [False, True] @=? map (\a -> leDioPositivoC dataCompetencia a)
+                                  (lesTocoControlAntiDopingC dataCompetencia),
 
         "dePaseoJ: devuelve los atletas correctos" ~:
             [555, 666] @=? map ciaNumberA (dePaseoJ dataDePaseoJ),
@@ -117,10 +121,10 @@ tests = TestList [
 -- Datos de prueba ------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-dataAntiDoping :: Competencia
-dataAntiDoping = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
-                            [111, 222, 333, 444, 555, 666, 777, 888]
-                            [(222, False), (444, True)]
+dataCompetencia :: Competencia
+dataCompetencia = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
+                             [111, 222, 333, 444, 555, 666, 777, 888]
+                             [(222, False), (444, True)]
 
 dataDePaseoJ :: JJOO
 dataDePaseoJ = NuevoDia dia2 (NuevoDia dia1 (J 2012 (atletasActivos ++ atletasDePaseo) 1))

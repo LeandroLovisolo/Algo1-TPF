@@ -31,18 +31,19 @@ finalizadaC (Finalizar _ _ _) = True
 finalizadaC _ = False
 
 rankingC :: Competencia -> [Atleta]
-rankingC (Finalizar ciaNumbers _ c) = atletas ciaNumbers c
-    where atletas [] c = [];
-          atletas (x:xs) c = (buscarAtleta x (participantesC c)) : (atletas xs c);
-          buscarAtleta x (a:as) = if (ciaNumberA a) == x then a else (buscarAtleta x as);
+rankingC (Finalizar ciaNumbers _ c) = atletasPorCiaNumber ciaNumbers c
+
+atletasPorCiaNumber :: [Int] -> Competencia -> [Atleta]
+atletasPorCiaNumber [] c = []
+atletasPorCiaNumber (x:xs) c = (buscar x (participantesC c)) : atletasPorCiaNumber xs c
+    where buscar ciaNumber (x:xs)
+            | ciaNumber == ciaNumberA(x) = x
+            | otherwise                  = buscar ciaNumber xs
 
 lesTocoControlAntiDopingC :: Competencia -> [Atleta]
-lesTocoControlAntiDopingC (Finalizar _ dopping c) = buscarAtletas dopping c
-    where buscarAtletas [] c = []
-          buscarAtletas (x:xs) c = (buscarAtleta (fst x) (participantesC c)) : buscarAtletas xs c
-          buscarAtleta ciaNumber (x:xs)
-            | ciaNumber == ciaNumberA x = x
-            | otherwise                 = buscarAtleta ciaNumber xs
+lesTocoControlAntiDopingC (Finalizar _ dopping c) = atletasPorCiaNumber (ciaNumbers dopping) c
+    where ciaNumbers [] = []
+          ciaNumbers ((n,_):xs) = n:(ciaNumbers xs)
 
 leDioPositivoC :: Competencia -> Atleta -> Bool
 leDioPositivoC (Finalizar _ dopping _) a = buscar dopping (ciaNumberA a)
