@@ -87,7 +87,7 @@ auxCompetencia (compe:competencias) | finalizadaC compe = compe : auxCompetencia
 auxMedallistas :: [Competencia] -> Int -> [Atleta]
 auxMedallistas [] m = []
 auxMedallistas (x:xs) m
-	| (length (rankingC x)) < 3 = auxMedallistas xs m
+	| (length (rankingC x)) < m = auxMedallistas xs m
 	| otherwise                 = (rankingC x !! m) : auxMedallistas xs m
 
 -- medalleroJ :: JJOO-> [(Pais, [Integer])]
@@ -108,8 +108,8 @@ auxPaisPodio (atleta:atletas) = nacionalidadA atleta : auxPaisPodio atletas
 -- Datos de prueba. Devuelve una lista de competencias finalizadas.
 testCompetencias :: [Competencia]
 testCompetencias = [(competencia "Futbol" [333, 111, 222, 555, 444]),
-                   (competencia "Basket" [111, 555, 333, 444, 222]),
-                   (competencia "Volley" [555, 222, 444, 111, 333])]
+                    (competencia "Basket" [111, 555, 333, 444, 222]),
+                    (competencia "Volley" [555, 222, 444, 111, 333])]
 	where competencia deporte posiciones =
 		finalizarC (nuevaC deporte Masculino testAtletas) posiciones []
 
