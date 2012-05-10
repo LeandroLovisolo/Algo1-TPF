@@ -82,13 +82,49 @@ auxCompetencia [] = []
 auxCompetencia (compe:competencias) | finalizadaC compe = compe : auxCompetencia competencias
 					    		    | otherwise = auxCompetencia competencias
 
+
+
+--medalleroJ :: JJOO -> [(Pais, [Integer])]
+--medalleroJ j = medallero (paisesQueGanaron j)
+--    where medallero [] = []
+--          medallero (x:xs) = (x, medalleroPorPais x) : medallero xs
+--          paisesQueGanaron j = ?
+--          medalleroPorPais p = ?
+--          medallistas = ?
+
+
+paisesQueGanaron :: [Competencia] -> [Pais]
+paisesQueGanaron xs = sinRepetidos (obtenerPaises ((auxMedallistas xs 0) ++
+                                                   (auxMedallistas xs 1) ++
+                                                   (auxMedallistas xs 2)))
+    where obtenerPaises [] = []
+          obtenerPaises (x:xs) = (nacionalidadA x) : obtenerPaises xs
+
+
+-- Devuelve las competencias finalizadas hasta la jornada actual inclusive. 
+competenciasFinalizadas :: JJOO -> [Competencia]
+competenciasFinalizadas j = competencias (jornadaActualJ j) j
+    where competencias 1 j = soloFinalizadas (cronogramaJ j 1)
+          competencias d j = soloFinalizadas (cronogramaJ j d) ++ (competencias (d - 1) j)
+          soloFinalizadas [] = []
+          soloFinalizadas (c:cs) = if finalizadaC c
+                                   then c : soloFinalizadas cs
+                                   else soloFinalizadas cs
+
 -- Dada una lista de competencias finalizas y una posición, devuelve
 -- todos los atletas que finalizaron en esa posición.
 auxMedallistas :: [Competencia] -> Int -> [Atleta]
 auxMedallistas [] m = []
 auxMedallistas (x:xs) m
-	| (length (rankingC x)) < m = auxMedallistas xs m
+	| (length (rankingC x)) <= m = auxMedallistas xs m
 	| otherwise                 = (rankingC x !! m) : auxMedallistas xs m
+
+-- Devuelve los elementos de una lista sin repetir.
+sinRepetidos :: Eq a => [a] -> [a]
+sinRepetidos [] = []
+sinRepetidos (x:xs) = if (elem (last (x:xs)) (init (x:xs)))
+                         then sinRepetidos (init (x:xs))
+                         else (sinRepetidos (init (x:xs))) ++ [last (x:xs)]
 
 -- medalleroJ :: JJOO-> [(Pais, [Integer])]
 -- medalleroJ (J _ _ _) = []
@@ -107,20 +143,23 @@ auxPaisPodio (atleta:atletas) = nacionalidadA atleta : auxPaisPodio atletas
 
 -- Datos de prueba. Devuelve una lista de competencias finalizadas.
 testCompetencias :: [Competencia]
-testCompetencias = [(competencia "Futbol" [333, 111, 222, 555, 444]),
-                    (competencia "Basket" [111, 555, 333, 444, 222]),
-                    (competencia "Volley" [555, 222, 444, 111, 333])]
+testCompetencias = [(competencia "Futbol" [333, 111, 222, 555, 444, 777, 888, 666]),
+                    (competencia "Basket" [111, 555, 333, 444, 888, 222, 666, 777]),
+                    (competencia "Volley" [555, 222, 444, 111, 666, 888, 777, 333])]
 	where competencia deporte posiciones =
 		finalizarC (nuevaC deporte Masculino testAtletas) posiciones []
 
 -- Datos de prueba. Devuelve una lista de atletas entrenados en ciertos deportes.
 testAtletas :: [Atleta]
 testAtletas = map entrenarDeportes atletas 
-  where atletas = [(nuevoA "Abel"    Masculino 18 "Argentina" 111),
-                   (nuevoA "Beto"    Masculino 19 "Brasil"    222),
-                   (nuevoA "Carlos"  Masculino 20 "Chile"     333),
-                   (nuevoA "Daniel"  Masculino 21 "Dinamarca" 444),
-                   (nuevoA "Esteban" Masculino 22 "Ecuador"   555)]
+  where atletas = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
+                   (nuevoA "Beto"     Masculino 19 "Brasil"    222),
+                   (nuevoA "Carlos"   Masculino 20 "Chile"     333),
+                   (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444),
+                   (nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
+                   (nuevoA "Federico" Masculino 22 "Francia"   666),
+                   (nuevoA "Gabriel"  Masculino 22 "Grecia"    777),
+                   (nuevoA "Horacio"  Masculino 22 "Honduras"  888)]
         deportes = ["Futbol", "Basket", "Volley"]
         entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
         entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte 10
