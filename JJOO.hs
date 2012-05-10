@@ -174,10 +174,6 @@ auxFinalizarCompetencias (compe:competencias)
                                       (auxCrearDopping compe))
                                 : (auxFinalizarCompetencias competencias)
 
--- Si la lista de atletas inicial no tiene repetidos entonces funciona,
--- si no habri que buscar una forma de sacar los repetidos. 
--- El auxOrdenar los ordenar de menor a mayor, para que los ordene
--- de mayor a menor hay que poner un reverse antes de auxOrdenar en el auxCrearRanking
 auxCrearRanking :: [Atleta] -> Categoria -> [Int]
 auxCrearRanking [] _ = []
 auxCrearRanking atletas cate =
@@ -262,63 +258,3 @@ liuSongJ                  = undefined
 stevenBradburyJ           = undefined
 uyOrdenadoAsiHayUnPatronJ = undefined
 sequiaOlimpicaJ           = undefined
-
-
--------------------------------------------------------------------------------
--- Datos de prueba ------------------------------------------------------------
--------------------------------------------------------------------------------
-
-testJJOODePaseo :: JJOO
-testJJOODePaseo = NuevoDia dia2 (NuevoDia dia1 (J 2012 (atletasActivos ++ atletasDePaseo) 1))
-    where atletasActivos = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
-                            (nuevoA "Beto"     Masculino 19 "Brasil"    222),
-                            (nuevoA "Carlos"   Masculino 20 "Chile"     333),
-                            (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444)]
-          atletasDePaseo = [(nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
-                            (nuevoA "Federico" Masculino 22 "Francia"   666)]
-          dia1 = [(competencia "Futbol"),
-                  (competencia "Handball"),
-                  (competencia "Basket")]
-          dia2 = [(competencia "Volley"),
-                  (competencia "Arqueria"),
-                  (competencia "Natacion")]
-          competencia d = (nuevaC d Masculino atletasActivos)
-
--- Devuelve unos JJOO con algunas competencias finalizadas y otras no.
-testJJOO :: JJOO
-testJJOO = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 testAtletas 2)))
-    where cronograma = [dia1, dia2, dia3]
-          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
-                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
-                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
-          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
-                  (competencia  "Arqueria"),
-                  (competencia  "Natacion")]
-          dia3 = [(competencia  "Gimnasia Artistica"),
-                  (competencia  "Hockey"),
-                  (competencia  "Rugby")]
-          competenciaF dep pos = finalizarC (nuevaC dep Masculino testAtletas) pos []
-          competencia  dep     = (nuevaC dep Masculino testAtletas)
-
--- Devuelve una lista de competencias finalizadas.
-testCompetencias :: [Competencia]
-testCompetencias = [(competencia "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
-                    (competencia "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
-                    (competencia "Basket"   [111, 555, 333, 444, 888, 222, 666, 777]),
-                    (competencia "Volley"   [555, 222, 444, 111, 666, 888, 777, 333])]
-    where competencia dep pos = finalizarC (nuevaC dep Masculino testAtletas) pos []
-
--- Devuelve una lista de atletas entrenados en ciertos deportes.
-testAtletas :: [Atleta]
-testAtletas = map entrenarDeportes atletas 
-  where atletas = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
-                   (nuevoA "Beto"     Masculino 19 "Brasil"    222),
-                   (nuevoA "Carlos"   Masculino 20 "Chile"     333),
-                   (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444),
-                   (nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
-                   (nuevoA "Federico" Masculino 22 "Francia"   666),
-                   (nuevoA "Gabriel"  Masculino 22 "Grecia"    777),
-                   (nuevoA "Horacio"  Masculino 22 "Honduras"  888)]
-        deportes = ["Futbol", "Handball", "Basket", "Volley"]
-        entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
-        entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte 10
