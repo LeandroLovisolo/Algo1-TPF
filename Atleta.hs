@@ -5,7 +5,7 @@ where
 
 import Tipos
 
-data Atleta = A String Sexo Int Pais Int [(Deporte, Int)] deriving (Show)
+data Atleta = A String Sexo Int Pais Int [(Deporte, Int)]
 
 nuevoA :: String -> Sexo -> Int -> Pais -> Int -> Atleta
 nuevoA nom s a nac cia = (A nom s a nac cia [])
@@ -56,3 +56,6 @@ entrenarDeporteA (A nombre sexo anio pais cia deportes) depPorAgregar capPorAgre
 
 atleta :: String->Sexo->Int->Pais->Int->[(Deporte, Int)]-> Atleta
 atleta a b c d e f = A a b c d e f
+
+instance Show Atleta where
+	show (A nombre sexo edad pais ciaNumber capacidades) = nombre ++ " (#" ++ show ciaNumber ++ ")"

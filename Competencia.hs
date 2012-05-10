@@ -11,7 +11,6 @@ import Atleta
 data Competencia = C Categoria
                  | Participar Atleta Competencia
                  | Finalizar [Int] [(Int, Bool)] Competencia
-                   deriving (Show)
 
 nuevaC :: Deporte -> Sexo -> [Atleta] -> Competencia
 nuevaC dep sex [] = C (dep, sex)
@@ -72,3 +71,14 @@ gananLosMasCapacesC :: Competencia -> Bool
 gananLosMasCapacesC (Finalizar [] dopping compe) = True
 gananLosMasCapacesC (Finalizar [x] dopping compe) = True
 gananLosMasCapacesC (Finalizar (frank:srank:ranking) dopping compe) = (capacidadA (auxAtletaConCia frank (participantesC compe)) (fst (categoriaC compe))) >= (capacidadA (auxAtletaConCia srank (participantesC compe)) (fst (categoriaC compe))) && gananLosMasCapacesC (Finalizar ranking dopping compe)
+
+instance Show Competencia where
+	show c = "Competencia " ++ show (categoriaC c) ++ (participantes c) ++ (ranking c)
+		where participantes c = if length (participantesC c) > 0
+			                    then ": " ++ show (participantesC c)
+			                    else "";
+			  ranking c = if finalizadaC c
+			  	          then ", ranking: [" ++ ciaNumbers (rankingC c) ++ "]"
+			  	          else "";
+			  ciaNumbers [x] = (show (ciaNumberA x));
+			  ciaNumbers (x:xs) = (show (ciaNumberA x)) ++ "," ++ ciaNumbers xs;
