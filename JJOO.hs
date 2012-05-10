@@ -243,6 +243,57 @@ auxSacarAtletasConPais (atle:atletas) pais
 -- Fin de boicotPorDisciplinaJ ------------------------------------------------
 -------------------------------------------------------------------------------
 
+-------------------------------------------------------------------------------
+-- losMasFracasadosJ-----------------------------------------------------------
+-------------------------------------------------------------------------------
+
+losMasFracasadosJ :: JJOO->Pais->[Atleta]
+losMasFracasadosJ (J _ atletas _) p = atletas
+losMasFracasadosJ (NuevoDia competencias juegos) pais = auxPerdedores (NuevoDia competencias juegos) (auxordenAtletas (NuevoDia competencias juegos) (auxAtletasPais (atletasJ juegos) pais))
+
+auxPerdedores :: JJOO->[Atleta]->[Atleta]
+auxPerdedores juegos [] = []
+auxPerdedores juegos (a:as) | not(ganoMedalla (competenciasFinalizadas juegos) a) = a : auxPerdedores juegos as
+              | otherwise = auxPerdedores juegos as
+              where ganoMedalla c a= (ganoOro c a || ganoPlata c a || ganoBronce c a)
+                    ganoOro [] a = False
+                    ganoOro (comp:competencia) a | ciaNumberA ((rankingC comp)!!0) == ciaNumberA a = True
+                                                 | otherwise                                       = ganoOro competencia a
+                    ganoPlata [] a = False
+                    ganoPlata (comp:competencia) a | ciaNumberA ((rankingC comp)!!1) == ciaNumberA a = True
+                                                   | otherwise                                       = ganoPlata competencia a
+                    ganoBronce [] a = False
+                    ganoBronce (comp:competencia) a | ciaNumberA ((rankingC comp)!!2) == ciaNumberA a = True
+                                                    | otherwise = ganoBronce competencia a
+
+auxordenAtletas :: JJOO->[Atleta]-> [Atleta]
+auxordenAtletas juegos [] = []
+auxordenAtletas juegos [x] = [x]
+auxordenAtletas juegos (x:y:xs) | cantCompetencias juegos x  >= cantCompetencias juegos y = x: auxordenAtletas juegos (y:xs)
+                | cantCompetencias juegos x < cantCompetencias juegos y = y: auxordenAtletas juegos (x:xs)
+
+cantCompetencias :: JJOO->Atleta->Int
+cantCompetencias (J _ _ _) _ = 0
+cantCompetencias juegos atleta = auxCompe (competenciasFinalizadas juegos) atleta
+
+auxCompe :: [Competencia] -> Atleta -> Int
+auxCompe [] _ = 0
+auxCompe (compe:competencias) atleta | auxPertenece (participantesC compe) atleta = 1 + auxCompe competencias atleta
+                   | otherwise = auxCompe competencias atleta
+auxPertenece :: [Atleta]->Atleta->Bool
+auxPertenece [] a = False
+auxPertenece (atleta:atletas) a | ciaNumberA a == ciaNumberA atleta = True
+                | otherwise = auxPertenece atletas a  
+
+auxAtletasPais :: [Atleta]->Pais->[Atleta]
+auxAtletasPais [] _ = []
+auxAtletasPais (x:xs) p | nacionalidadA x == p = x : auxAtletasPais xs p
+            | otherwise = auxAtletasPais xs p
+
+-------------------------------------------------------------------------------
+-- Fin de losMasFracasadosJ ---------------------------------------------------
+-------------------------------------------------------------------------------
+
 
 -------------------------------------------------------------------------------
 -- liuSongJ -------------------------------------------------------------------
@@ -336,6 +387,6 @@ auxUyOrdenadoAsiHayUnPatronJ (NuevoDia competencias juegos) paises | auxExisteAl
 -- Fin de uyOrdenadoAsiHayUnPatronJ -------------------------------------------
 -------------------------------------------------------------------------------
 
-losMasFracasadosJ         = undefined
+-- losMasFracasadosJ         = undefined
 stevenBradburyJ           = undefined
 sequiaOlimpicaJ           = undefined
