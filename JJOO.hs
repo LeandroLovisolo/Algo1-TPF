@@ -128,11 +128,11 @@ competenciasFinalizadas j = competencias (jornadaActualJ j) j
 
 tieneMasMedallas :: Pais -> Pais -> JJOO -> Bool
 tieneMasMedallas p1 p2 j =
-    let m1 = snd (medalleroPorPais p1 j)
-        m2 = snd (medalleroPorPais p2 j)
-    in   (m1 !! 0 >  m2 !! 0) ||
+         (m1 !! 0 >  m2 !! 0) ||
         ((m1 !! 0 == m2 !! 0) && (m1 !! 1 >  m2 !! 1)) ||
         ((m1 !! 0 == m2 !! 0) && (m1 !! 1 == m2 !! 1) && (m1 !! 2 >= m2 !! 2))
+    where m1 = snd (medalleroPorPais p1 j)
+          m2 = snd (medalleroPorPais p2 j)
 
 medalleroPorPais :: Pais -> JJOO -> (Pais, [Int])
 medalleroPorPais p j = (p, (medallero p j))
@@ -155,15 +155,10 @@ medalleroPorPais p j = (p, (medallero p j))
 -------------------------------------------------------------------------------
 
 transcurrirDiaJ :: JJOO -> JJOO
-transcurrirDiaJ juegos = auxTranscurrirDiaJ juegos ((cantDiasJ juegos)-(jornadaActualJ juegos))
-
-auxTranscurrirDiaJ :: JJOO -> Int -> JJOO
--- ver si usar auxAumentarDia
-auxTranscurrirDiaJ (J anio atletas diaActual) _ = (J anio atletas (diaActual+1))
-auxTranscurrirDiaJ (NuevoDia competencias juegos) 0 =
-    (NuevoDia (auxFinalizarCompetencias competencias) (auxTranscurrirDiaJ juegos (-1)))
-auxTranscurrirDiaJ (NuevoDia competencias juegos) i =
-    (NuevoDia competencias (auxTranscurrirDiaJ juegos (i-1)))
+transcurrirDiaJ j = transcurrir j ((cantDiasJ j) - (jornadaActualJ j))
+    where transcurrir (J anio atletas diaActual) _ = (J anio atletas (diaActual + 1))
+          transcurrir (NuevoDia cs j) 0 = (NuevoDia (auxFinalizarCompetencias cs) (transcurrir j (-1)))
+          transcurrir (NuevoDia cs j) i = (NuevoDia cs (transcurrir j (i - 1)))
 
 auxFinalizarCompetencias :: [Competencia] -> [Competencia]
 auxFinalizarCompetencias [] = []
@@ -195,15 +190,10 @@ auxMayorCapacidad (atleta:atletas) cate atleMax
     | otherwise = auxMayorCapacidad atletas cate atleMax
 
 auxCrearDopping :: Competencia -> [(Int, Bool)]
-auxCrearDopping compe
-    | (length (participantesC compe) >=1) = [(ciaNumberA (head (participantesC compe)), True)]
-    | otherwise                           = []
+auxCrearDopping c
+    | length (participantesC c) >= 1 = [(ciaNumberA (head (participantesC c)), False)]
+    | otherwise                        = []
 
-auxAumentarDia :: Int -> Int -> Int
-auxAumentarDia diaActual maxDias
-    | diaActual < maxDias = diaActual + 1
-	| diaActual == maxDias = diaActual
-								 
 -------------------------------------------------------------------------------
 -- Fin de transcurrirDiaJ -----------------------------------------------------
 -------------------------------------------------------------------------------
