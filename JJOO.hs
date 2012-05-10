@@ -137,6 +137,21 @@ competenciasFinalizadas j = competencias (jornadaActualJ j) j
                                    then c : soloFinalizadas cs
                                    else soloFinalizadas cs
 
+testJJOO :: JJOO
+testJJOO = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 testAtletas 2)))
+    where cronograma = [dia1, dia2, dia3]
+          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
+                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
+          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
+                  (competencia  "Arqueria"),
+                  (competencia  "Natacion")]
+          dia3 = [(competencia  "Gimnasia Artistica"),
+                  (competencia  "Hockey"),
+                  (competencia  "Rugby")]
+          competenciaF dep pos = finalizarC (nuevaC dep Masculino testAtletas) pos []
+          competencia  dep     = (nuevaC dep Masculino testAtletas)
+
 -- Datos de prueba. Devuelve una lista de competencias finalizadas.
 testCompetencias :: [Competencia]
 testCompetencias = [(competencia "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
