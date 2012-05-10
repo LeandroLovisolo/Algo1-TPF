@@ -39,23 +39,36 @@ jornadaActualJ :: JJOO -> Int
 jornadaActualJ (J _ _ jornadaActual) = jornadaActual
 jornadaActualJ (NuevoDia _ juegos) = jornadaActualJ juegos
 
+
+-------------------------------------------------------------------------------
+-- dePaseoJ -------------------------------------------------------------------
+-------------------------------------------------------------------------------
+
 dePaseoJ :: JJOO -> [Atleta]
 dePaseoJ juegos = auxDePaseoJ juegos (atletasJ juegos)
 
-auxExisteAtletaConCia :: [Atleta] -> Int -> Bool
-auxExisteAtletaConCia [] _ = False
-auxExisteAtletaConCia (atle:atletas) cia | ((ciaNumberA atle) == cia) = True
-										 | otherwise = auxExisteAtletaConCia atletas cia
+auxDePaseoJ :: JJOO -> [Atleta] -> [Atleta]
+auxDePaseoJ (J _ _ _) atles = atles
+auxDePaseoJ (NuevoDia (compe:competencias) juegos) atles =
+    auxDePaseoJ (NuevoDia competencias juegos) (auxSacarAtletas atles (participantesC compe))
+auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
 
 auxSacarAtletas :: [Atleta] -> [Atleta] -> [Atleta]
 auxSacarAtletas atletas [] = []
 auxSacarAtletas [] atletasParaSacar = []
-auxSacarAtletas (atle:atletas) atletasParaSacar | auxExisteAtletaConCia atletasParaSacar (ciaNumberA atle) = auxSacarAtletas atletas atletasParaSacar
-												| otherwise = atle : auxSacarAtletas atletas atletasParaSacar
-auxDePaseoJ :: JJOO -> [Atleta] -> [Atleta]
-auxDePaseoJ (J _ _ _) atles = atles
-auxDePaseoJ (NuevoDia (compe:competencias) juegos) atles = auxDePaseoJ (NuevoDia competencias juegos) (auxSacarAtletas atles (participantesC compe))
-auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
+auxSacarAtletas (atle:atletas) atletasParaSacar
+    | auxExisteAtletaConCia atletasParaSacar (ciaNumberA atle) = auxSacarAtletas atletas atletasParaSacar
+    | otherwise                                                = atle : auxSacarAtletas atletas atletasParaSacar
+
+auxExisteAtletaConCia :: [Atleta] -> Int -> Bool
+auxExisteAtletaConCia [] _ = False
+auxExisteAtletaConCia (atle:atletas) cia
+    | ((ciaNumberA atle) == cia) = True
+    | otherwise = auxExisteAtletaConCia atletas cia
+
+-------------------------------------------------------------------------------
+-- Fin de dePaseoJ ------------------------------------------------------------
+-------------------------------------------------------------------------------    
 
 
 -------------------------------------------------------------------------------
@@ -136,12 +149,9 @@ medalleroPorPais p j = (p, (medallero p j))
 -------------------------------------------------------------------------------
 
 
-losMasFracasadosJ         = undefined
-liuSongJ                  = undefined
-stevenBradburyJ           = undefined
-uyOrdenadoAsiHayUnPatronJ = undefined
-sequiaOlimpicaJ           = undefined
-
+-------------------------------------------------------------------------------
+-- transcurrirDiaJ ------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 --Prototipo de transcurrir dia, falta auxCrearRanking y asignar algun al dopping!
 --En caso de que la especificacion este mal, porque dice que requiere que no sea el ultimo pero el invariante admite que sea el ultimo dia
@@ -200,13 +210,40 @@ auxRecorreCronograma :: JJOO -> (Deporte, Sexo) -> Pais -> [[Competencia]]
 auxRecorreCronograma (J _ _ _) _ _ = []
 auxRecorreCronograma (NuevoDia competencias juegos) cate pais = (auxRecorreCronograma juegos cate pais) ++ [(auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cate)]
 
+-------------------------------------------------------------------------------
+-- Fin de transcurrirDiaJ -----------------------------------------------------
+-------------------------------------------------------------------------------
+
+
 boicotPorDisciplinaJ :: JJOO -> (Deporte, Sexo) -> Pais -> JJOO
 boicotPorDisciplinaJ juegos cat pais = nuevoJConJornadaActual  (anioJ juegos) (atletasJ juegos) (auxRecorreCronograma juegos cat pais) (jornadaActualJ juegos)
+
+losMasFracasadosJ         = undefined
+liuSongJ                  = undefined
+stevenBradburyJ           = undefined
+uyOrdenadoAsiHayUnPatronJ = undefined
+sequiaOlimpicaJ           = undefined
 
 
 -------------------------------------------------------------------------------
 -- Datos de prueba ------------------------------------------------------------
 -------------------------------------------------------------------------------
+
+testJJOODePaseo :: JJOO
+testJJOODePaseo = NuevoDia dia2 (NuevoDia dia1 (J 2012 (atletasActivos ++ atletasDePaseo) 1))
+    where atletasActivos = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
+                            (nuevoA "Beto"     Masculino 19 "Brasil"    222),
+                            (nuevoA "Carlos"   Masculino 20 "Chile"     333),
+                            (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444)]
+          atletasDePaseo = [(nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
+                            (nuevoA "Federico" Masculino 22 "Francia"   666)]
+          dia1 = [(competencia "Futbol"),
+                  (competencia "Handball"),
+                  (competencia "Basket")]
+          dia2 = [(competencia "Volley"),
+                  (competencia "Arqueria"),
+                  (competencia "Natacion")]
+          competencia d = (nuevaC d Masculino atletasActivos)
 
 -- Devuelve unos JJOO con algunas competencias finalizadas y otras no.
 testJJOO :: JJOO
@@ -223,7 +260,6 @@ testJJOO = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 testAtletas 2)))
                   (competencia  "Rugby")]
           competenciaF dep pos = finalizarC (nuevaC dep Masculino testAtletas) pos []
           competencia  dep     = (nuevaC dep Masculino testAtletas)
-
 
 -- Devuelve una lista de competencias finalizadas.
 testCompetencias :: [Competencia]
