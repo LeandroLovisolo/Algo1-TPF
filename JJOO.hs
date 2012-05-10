@@ -291,8 +291,51 @@ liuSongJ (NuevoDia competencias juegos) atletaACambiar pais =
 -- Fin de liuSongJ ------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+-------------------------------------------------------------------------------
+-- uyOrdenadoAsiHayUnPatronJ --------------------------------------------------
+-------------------------------------------------------------------------------
+
+auxExisteAlgunoConRanking :: [Competencia] -> Bool
+auxExisteAlgunoConRanking [] = False
+auxExisteAlgunoConRanking (compe:competencias) | (finalizadaC compe) = ((length (rankingC compe)) > 0)
+                                              | otherwise = auxExisteAlgunoConRanking competencias
+
+auxMejorPaisEnElDia :: [(Pais, Int)] -> (Pais, Int) -> Pais
+auxMejorPaisEnElDia [] pais = (fst pais)
+auxMejorPaisEnElDia (pais:paises) paisMax 
+                | ((snd paisMax) > (snd pais)) || (((snd paisMax) > (snd pais)) && ((fst paisMax) > (fst pais))) = 
+                    auxMejorPaisEnElDia paises paisMax
+                | otherwise = auxMejorPaisEnElDia paises pais
+
+auxMeterPais :: [(Pais, Int)] -> Pais -> [(Pais, Int)]
+auxMeterPais [] pais = [(pais,1)]
+auxMeterPais (pais:paises) paisAMeter | ((fst pais) == paisAMeter) = (fst pais, (snd(pais)+1)) : paises
+                    | otherwise = pais : (auxMeterPais paises paisAMeter)
+
+--capaz que esto explota con no finalizada
+auxPaisesGanadoresEnElDia :: [Competencia] -> [(Pais, Int)] -> [(Pais, Int)]
+auxPaisesGanadoresEnElDia [] paises = paises
+auxPaisesGanadoresEnElDia (compe:competencias) paises | (finalizadaC compe) && (length (rankingC compe) > 0) =
+  auxPaisesGanadoresEnElDia competencias (auxMeterPais paises (nacionalidadA ((rankingC compe)!!0)))
+                                               | otherwise = auxPaisesGanadoresEnElDia competencias paises
+---------------------------------------------------------------------------------------------
+---------------- Falta completar auxExistePatron --------------------------------------------
+auxExistePatron :: [Pais] -> Int -> Bool
+auxExistePatron x _ = True
+----------------------------------------------------------------------------------------------
+uyOrdenadoAsiHayUnPatronJ :: JJOO -> Bool
+uyOrdenadoAsiHayUnPatronJ juegos = auxUyOrdenadoAsiHayUnPatronJ juegos []
+
+auxUyOrdenadoAsiHayUnPatronJ :: JJOO -> [Pais] -> Bool
+auxUyOrdenadoAsiHayUnPatronJ (J _ _ _) lista = (auxExistePatron lista (length lista))
+auxUyOrdenadoAsiHayUnPatronJ (NuevoDia competencias juegos) paises | auxExisteAlgunoConRanking competencias = 
+  auxUyOrdenadoAsiHayUnPatronJ juegos ((auxMejorPaisEnElDia (auxPaisesGanadoresEnElDia competencias []) (head(auxPaisesGanadoresEnElDia competencias []))):paises)
+                                                                  | otherwise = auxUyOrdenadoAsiHayUnPatronJ juegos paises
+
+-------------------------------------------------------------------------------
+-- Fin de uyOrdenadoAsiHayUnPatronJ -------------------------------------------
+-------------------------------------------------------------------------------
 
 losMasFracasadosJ         = undefined
 stevenBradburyJ           = undefined
-uyOrdenadoAsiHayUnPatronJ = undefined
 sequiaOlimpicaJ           = undefined
