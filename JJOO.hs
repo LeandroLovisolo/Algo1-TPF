@@ -233,8 +233,6 @@ auxCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat
             : (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
     | otherwise = compe : (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
 
-
-
 auxSacarAtletasConPais :: [Atleta] -> Pais -> [Atleta]
 auxSacarAtletasConPais [] _ = []
 auxSacarAtletasConPais (atle:atletas) pais
@@ -244,6 +242,7 @@ auxSacarAtletasConPais (atle:atletas) pais
 -------------------------------------------------------------------------------
 -- Fin de boicotPorDisciplinaJ ------------------------------------------------
 -------------------------------------------------------------------------------
+
 
 -------------------------------------------------------------------------------
 -- liuSongJ -------------------------------------------------------------------
@@ -289,8 +288,10 @@ liuSongJ (NuevoDia competencias juegos) atletaACambiar pais =
   (NuevoDia (auxProcesaCompetencias competencias atletaACambiar pais) (liuSongJ juegos atletaACambiar pais))
 
 -------------------------------------------------------------------------------
--- Fin de liuSongJ -------------------------------------------------------------------
+-- Fin de liuSongJ ------------------------------------------------------------
 -------------------------------------------------------------------------------
+
+
 losMasFracasadosJ         = undefined
 stevenBradburyJ           = undefined
 uyOrdenadoAsiHayUnPatronJ = undefined
