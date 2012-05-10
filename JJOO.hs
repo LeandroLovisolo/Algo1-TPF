@@ -128,11 +128,11 @@ competenciasFinalizadas j = competencias (jornadaActualJ j) j
 
 tieneMasMedallas :: Pais -> Pais -> JJOO -> Bool
 tieneMasMedallas p1 p2 j =
-    let m1 = snd (medalleroPorPais p1 j)
-        m2 = snd (medalleroPorPais p2 j)
-    in   (m1 !! 0 >  m2 !! 0) ||
+         (m1 !! 0 >  m2 !! 0) ||
         ((m1 !! 0 == m2 !! 0) && (m1 !! 1 >  m2 !! 1)) ||
         ((m1 !! 0 == m2 !! 0) && (m1 !! 1 == m2 !! 1) && (m1 !! 2 >= m2 !! 2))
+    where m1 = snd (medalleroPorPais p1 j)
+          m2 = snd (medalleroPorPais p2 j)
 
 medalleroPorPais :: Pais -> JJOO -> (Pais, [Int])
 medalleroPorPais p j = (p, (medallero p j))
