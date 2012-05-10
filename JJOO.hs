@@ -117,7 +117,7 @@ auxMedallistas :: [Competencia] -> Int -> [Atleta]
 auxMedallistas [] m = []
 auxMedallistas (x:xs) m
 	| (length (rankingC x)) <= m = auxMedallistas xs m
-	| otherwise                 = (rankingC x !! m) : auxMedallistas xs m
+	| otherwise                  = (rankingC x !! m) : auxMedallistas xs m
 
 -- Devuelve los elementos de una lista sin repetir.
 sinRepetidos :: Eq a => [a] -> [a]
