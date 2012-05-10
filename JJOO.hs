@@ -62,28 +62,6 @@ auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
 
 -------------------------------------------------------------------------------------------------------------------------------
 
-medalleroJ :: JJOO -> [(Pais, [Integer])]
-medalleroJ = undefined
-
--- dado un jjoo y un dia devuelve ctas competencias finalizaron hasta el momento
-auxCompetenciasFinalizadas :: JJOO -> Int-> [Competencia]
-auxCompetenciasFinalizadas (J _ _ _) _ = []
-auxCompetenciasFinalizadas (NuevoDia competencias juegos) 0 = []
-auxCompetenciasFinalizadas (NuevoDia competencias juegos) jornadaActual  
-														                | jornadaActual == cantDiasJ (NuevoDia competencias juegos) = auxCompetenciasFinalizadasHoy (NuevoDia competencias juegos) ++ auxCompetenciasFinalizadas juegos jornadaActual
-														                | jornadaActual > cantDiasJ (NuevoDia competencias juegos) = cronogramaJ (NuevoDia competencias juegos) (cantDiasJ (NuevoDia competencias juegos)) ++ auxCompetenciasFinalizadas juegos jornadaActual
-														                | jornadaActual < cantDiasJ (NuevoDia competencias juegos) = auxCompetenciasFinalizadasHoy (NuevoDia competencias juegos) ++ auxCompetenciasFinalizadas juegos jornadaActual
-
-auxCompetenciasFinalizadasHoy :: JJOO->[Competencia]
-auxCompetenciasFinalizadasHoy (NuevoDia competencias juegos) = auxCompetencia (cronogramaJ (NuevoDia competencias juegos) (jornadaActualJ (NuevoDia competencias juegos)))
-
-auxCompetencia :: [Competencia]->[Competencia]
-auxCompetencia [] = []
-auxCompetencia (compe:competencias) | finalizadaC compe = compe : auxCompetencia competencias
-					    		    | otherwise = auxCompetencia competencias
-
-
-
 --medalleroJ :: JJOO -> [(Pais, [Integer])]
 --medalleroJ j = medallero (paisesQueGanaron j)
 --    where medallero [] = []
@@ -92,14 +70,64 @@ auxCompetencia (compe:competencias) | finalizadaC compe = compe : auxCompetencia
 --          medalleroPorPais p = ?
 --          medallistas = ?
 
+medalleroJ :: [Competencia] -> [(Pais, [Int])]
+medalleroJ cs = medallero (paisesGanadoresOrdenados cs)
+    where medallero [] = []
+          medallero (x:xs) = (medalleroPorPais x cs) : medallero xs
 
-paisesQueGanaron :: [Competencia] -> [Pais]
-paisesQueGanaron xs = sinRepetidos (obtenerPaises ((auxMedallistas xs 0) ++
-                                                   (auxMedallistas xs 1) ++
-                                                   (auxMedallistas xs 2)))
+paisesGanadoresOrdenados :: [Competencia] -> [Pais]
+paisesGanadoresOrdenados cs = ordenar (paisesGanadores cs)
+    where ordenar [] = []
+          ordenar [p] = [p]
+          ordenar (p1:p2:ps) = bubbleSort (p1:p2:ps) [] False
+          bubbleSort (p1:p2:ps) acc flag
+            | (tieneMasMedallas p1 p2 cs) = bubbleSort (p2:ps) (acc ++ [p1]) flag
+            | otherwise                   = bubbleSort (p1:ps) (acc ++ [p2]) True
+          bubbleSort [p] acc flag
+            | flag == True = bubbleSort (acc ++ [p]) [] False
+            | otherwise    = (acc ++ [p])
+
+paisesGanadores :: [Competencia] -> [Pais]
+paisesGanadores xs = sinRepetidos (obtenerPaises ((auxMedallistas xs 0) ++
+                                                  (auxMedallistas xs 1) ++
+                                                  (auxMedallistas xs 2)))
     where obtenerPaises [] = []
           obtenerPaises (x:xs) = (nacionalidadA x) : obtenerPaises xs
 
+-- Devuelve los elementos de una lista sin repetir.
+sinRepetidos :: Eq a => [a] -> [a]
+sinRepetidos [] = []
+sinRepetidos (x:xs) = if (elem (last (x:xs)) (init (x:xs)))
+                         then sinRepetidos (init (x:xs))
+                         else (sinRepetidos (init (x:xs))) ++ [last (x:xs)]
+
+-- Dada una lista de competencias finalizas y una posición, devuelve
+-- todos los atletas que finalizaron en esa posición.
+auxMedallistas :: [Competencia] -> Int -> [Atleta]
+auxMedallistas [] m = []
+auxMedallistas (x:xs) m
+    | (length (rankingC x)) <= m = auxMedallistas xs m
+    | otherwise                  = (rankingC x !! m) : auxMedallistas xs m
+
+tieneMasMedallas :: Pais -> Pais -> [Competencia] -> Bool
+tieneMasMedallas p1 p2 cs =
+    let m1 = snd (medalleroPorPais p1 cs)
+        m2 = snd (medalleroPorPais p2 cs)
+    in   (m1 !! 0 >  m2 !! 0) ||
+        ((m1 !! 0 == m2 !! 0) && (m1 !! 1 >  m2 !! 1)) ||
+        ((m1 !! 0 == m2 !! 0) && (m1 !! 1 == m2 !! 1) && (m1 !! 2 >= m2 !! 2))
+
+medalleroPorPais :: Pais -> [Competencia] -> (Pais, [Int])
+medalleroPorPais p [] = (p, [0, 0, 0])
+medalleroPorPais p as = (p, (medallero p as))
+    where medallero p as = [length (medallas p as 0),
+                            length (medallas p as 1),
+                            length (medallas p as 2)]
+          medallas p as pos = filtrarPorPais p (auxMedallistas as pos)
+          filtrarPorPais p [] = []
+          filtrarPorPais p (x:xs) = if nacionalidadA x == p
+                                    then x : (filtrarPorPais p xs)
+                                    else filtrarPorPais p xs
 
 -- Devuelve las competencias finalizadas hasta la jornada actual inclusive. 
 competenciasFinalizadas :: JJOO -> [Competencia]
@@ -111,41 +139,12 @@ competenciasFinalizadas j = competencias (jornadaActualJ j) j
                                    then c : soloFinalizadas cs
                                    else soloFinalizadas cs
 
--- Dada una lista de competencias finalizas y una posición, devuelve
--- todos los atletas que finalizaron en esa posición.
-auxMedallistas :: [Competencia] -> Int -> [Atleta]
-auxMedallistas [] m = []
-auxMedallistas (x:xs) m
-	| (length (rankingC x)) <= m = auxMedallistas xs m
-	| otherwise                  = (rankingC x !! m) : auxMedallistas xs m
-
--- Devuelve los elementos de una lista sin repetir.
-sinRepetidos :: Eq a => [a] -> [a]
-sinRepetidos [] = []
-sinRepetidos (x:xs) = if (elem (last (x:xs)) (init (x:xs)))
-                         then sinRepetidos (init (x:xs))
-                         else (sinRepetidos (init (x:xs))) ++ [last (x:xs)]
-
--- medalleroJ :: JJOO-> [(Pais, [Integer])]
--- medalleroJ (J _ _ _) = []
--- medalleroJ (NuevoDia competencias juegos) | auxPaisPodio (auxMedallistas (auxCompetenciasFinalizadas (NuevoDia competencias juegos) (jornadaActualJ (NuevoDia competencias juegos))) 0) 
-
-
-auxPaisPodio :: [Atleta]->[Pais]
-auxPaisPodio [] = []
-auxPaisPodio (atleta:atletas) = nacionalidadA atleta : auxPaisPodio atletas
-
--- auxPaisMedallas :: [(Pais,[Int])]-> [(Pais,[Int])]
--- auxPaisMedallas [] = []
--- auxPaisMedallas (p:pais:paises) | snd(p!!0)> snd(pais!!0) = auxPaisMedallas (p:paises)
---							    | snd(p!!0)< snd(pais!!0) = auxPaisMedallas (pais:paises)
-
-
 -- Datos de prueba. Devuelve una lista de competencias finalizadas.
 testCompetencias :: [Competencia]
-testCompetencias = [(competencia "Futbol" [333, 111, 222, 555, 444, 777, 888, 666]),
-                    (competencia "Basket" [111, 555, 333, 444, 888, 222, 666, 777]),
-                    (competencia "Volley" [555, 222, 444, 111, 666, 888, 777, 333])]
+testCompetencias = [(competencia "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
+                    (competencia "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
+                    (competencia "Basket"   [111, 555, 333, 444, 888, 222, 666, 777]),
+                    (competencia "Volley"   [555, 222, 444, 111, 666, 888, 777, 333])]
 	where competencia deporte posiciones =
 		finalizarC (nuevaC deporte Masculino testAtletas) posiciones []
 
