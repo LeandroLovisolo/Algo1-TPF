@@ -2,7 +2,7 @@ module JJOO (JJOO(..), nuevoJ, anioJ, atletasJ, cantDiasJ, cronogramaJ,
              jornadaActualJ, dePaseoJ, medalleroJ,
              boicotPorDisciplinaJ, losMasFracasadosJ, liuSongJ,
              stevenBradburyJ, uyOrdenadoAsiHayUnPatronJ, sequiaOlimpicaJ,
-             transcurrirDiaJ,auxOrdenar)
+             transcurrirDiaJ)
 where
 
 import Tipos
@@ -171,7 +171,6 @@ liuSongJ                  = undefined
 stevenBradburyJ           = undefined
 uyOrdenadoAsiHayUnPatronJ = undefined
 sequiaOlimpicaJ           = undefined
-transcurrirDiaJ           = undefined
 
 
 --Prototipo de transcurrir dia, falta auxCrearRanking y asignar algun al dopping!
@@ -182,39 +181,36 @@ auxAumentarDia diaActual maxDias | diaActual < maxDias = diaActual + 1
 								 
 --Si la lista de atletas inicial no tiene repetidos entonces funciona, si no habri que buscar una forma de sacar los repetidos. 
 --El auxOrdenar los ordenar de menor a mayor, para que los ordene de mayor a menor hay que poner un reverse antes de auxOrdenar en el auxCrearRanking
-auxCrearRanking :: [Atleta] -> Categoria -> [Atleta]
-auxCrearRanking [] cat = []
-auxCrearRanking (atle:atletas) cat |elem (fst(cat)) (deportesA atle) = auxOrdenar(atle:(auxCrearRanking atletas cat)) cat
-								   |otherwise = auxOrdenar (auxCrearRanking atletas cat) cat
-								   
-auxOrdenar:: [Atleta]-> Categoria ->[Atleta]
-auxOrdenar [] cat =[]
---auxOrdenar (atle:[]) cat = [atle]
-auxOrdenar atletas cat = auxOrdenar (auxSacaUnaVez atletas (auxPrimero atletas cat) ++ [(auxPrimero atletas cat)]) cat
+auxCrearRanking :: [Atleta] -> Categoria -> [Int]
+auxCrearRanking [] _ = []
+auxCrearRanking atletas cate = (ciaNumberA (auxMayorCapacidad atletas cate (head atletas))) : auxCrearRanking (auxSacaUnaVez atletas (auxMayorCapacidad atletas cate (head atletas))) cate
 
-auxPrimero :: [Atleta]-> Categoria->Atleta
-auxPrimero (atle:[]) cat = atle
-auxPrimero (atle:atletas) cat |capacidadA atle (fst(cat)) > capacidadA (head (atletas)) (fst(cat))  = auxPrimero (atle:(tail atletas)) cat --(atletas)
-						 	  |otherwise = auxPrimero (atletas) cat
+auxMayorCapacidad :: [Atleta] -> Categoria -> Atleta -> Atleta
+auxMayorCapacidad [] _ atleMax = atleMax
+auxMayorCapacidad (atleta:atletas) cate atleMax | (capacidadA atleta (fst cate)) >= (capacidadA atleMax (fst cate)) = auxMayorCapacidad atletas cate atleta
+                        | otherwise = auxMayorCapacidad atletas cate atleMax
 
 auxSacaUnaVez :: [Atleta]-> Atleta -> [Atleta]
 auxSacaUnaVez [] at = []
-auxSacaUnaVez (atle:atletas) at |(ciaNumberA atle) == (ciaNumberA at) = auxSacaUnaVez atletas at
-								|otherwise = atle : (auxSacaUnaVez atletas at)
-reverso :: [a] -> [a]
-reverso [] = []
-reverso (x:xs) = (reverso xs) ++ [x]
+auxSacaUnaVez (atle:atletas) at | (ciaNumberA atle) == (ciaNumberA at) = auxSacaUnaVez atletas at
+                | otherwise = atle : (auxSacaUnaVez atletas at)
 
---auxFinalizarCompetencias :: [Competencia] -> [Competencia]
---auxFinalizarCompetencias [] = []
---auxFinalizarCompetencias (compe:competencias) = (finalizarC (auxCrearRanking (participantesC compe) (categoriaC compe)) dopping compe) : (auxFinalizarCompetencias competencias)
+auxCrearDopping :: Competencia -> [(Int, Bool)]
+auxCrearDopping compe | (length (participantesC compe) >=1) = [(ciaNumberA (head (participantesC compe)), True)]
+            | otherwise = []
 
---transcurrirDiaJ :: JJOO -> JJOO
---transcurrirDiaJ juegos = auxTranscurrirDiaJ juegos (jornadaActualJ juegos)
---auxTranscurrirDiaJ :: JJOO -> Int -> JJOO
---auxTranscurrirDiaJ (J _ _ diaActual) _ = (J _ _ auxAumentarDia (diaActual+1))
---auxTranscurrirDiaJ (NuevoDia competencias juegos) 0 = (NuevoDia (auxFinalizarCompetencias competencias) juegos) (-1)
---auxTranscurrirDiaJ (NuevoDia _ juegos) i = auxTranscurrirDiaJ juegos (i-1)
+auxFinalizarCompetencias :: [Competencia] -> [Competencia]
+auxFinalizarCompetencias [] = []
+auxFinalizarCompetencias (compe:competencias) | finalizadaC compe = compe : (auxFinalizarCompetencias competencias)
+                        | otherwise =  (finalizarC compe (auxCrearRanking (participantesC compe) (categoriaC compe)) (auxCrearDopping compe)) : (auxFinalizarCompetencias competencias)
+
+transcurrirDiaJ :: JJOO -> JJOO
+transcurrirDiaJ juegos = auxTranscurrirDiaJ juegos ((cantDiasJ juegos)-(jornadaActualJ juegos))
+auxTranscurrirDiaJ :: JJOO -> Int -> JJOO
+-- ver si usar auxAumentarDia
+auxTranscurrirDiaJ (J anio atletas diaActual) _ = (J anio atletas (diaActual+1))
+auxTranscurrirDiaJ (NuevoDia competencias juegos) 0 = (NuevoDia (auxFinalizarCompetencias competencias) (auxTranscurrirDiaJ juegos (-1)))
+auxTranscurrirDiaJ (NuevoDia competencias juegos) i = (NuevoDia competencias (auxTranscurrirDiaJ juegos (i-1)))
 
 nuevoJConJornadaActual :: Int -> [Atleta] -> [[Competencia]] -> Int -> JJOO
 nuevoJConJornadaActual anio atletas [] jornada = (J anio atletas jornada)
