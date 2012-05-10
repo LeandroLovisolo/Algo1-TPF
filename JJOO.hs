@@ -214,32 +214,42 @@ auxAumentarDia diaActual maxDias
 -------------------------------------------------------------------------------
 
 boicotPorDisciplinaJ :: JJOO -> (Deporte, Sexo) -> Pais -> JJOO
-boicotPorDisciplinaJ juegos cat pais =
-    nuevoJConJornadaActual (anioJ juegos)
-                           (atletasJ juegos)
-                           (auxRecorreCronograma juegos cat pais)
-                           (jornadaActualJ juegos)
+boicotPorDisciplinaJ (J anio atletas jornadaActual) _ _ = (J anio atletas jornadaActual)
+boicotPorDisciplinaJ (NuevoDia competencias juegos) cate pais = 
+    (NuevoDia (auxCompetenciasSinAtletasConPaisYCat competencias pais cate) (boicotPorDisciplinaJ juegos cate pais))
 
-nuevoJConJornadaActual :: Int -> [Atleta] -> [[Competencia]] -> Int -> JJOO
-nuevoJConJornadaActual anio atletas [] jornada = (J anio atletas jornada)
-nuevoJConJornadaActual anio atletas (compe:competencias) _ =
-    NuevoDia compe (nuevoJ anio atletas competencias)
 
-auxRecorreCronograma :: JJOO -> (Deporte, Sexo) -> Pais -> [[Competencia]]
-auxRecorreCronograma (J _ _ _) _ _ = []
-auxRecorreCronograma (NuevoDia competencias juegos) cate pais =
-    (auxRecorreCronograma juegos cate pais) ++ [(auxNuevasCompetenciasSinAtletasConPaisYCat
-                                                    competencias pais cate)]
+auxAtletasConCia :: [Int] -> [Atleta] -> [Atleta]
+auxAtletasConCia _ [] = []
+auxAtletasConCia ciaNumbers (atle:atletas)
+  | elem (ciaNumberA atle) ciaNumbers = atle : (auxAtletasConCia ciaNumbers atletas)
+  | otherwise = auxAtletasConCia ciaNumbers atletas
 
-auxNuevasCompetenciasSinAtletasConPaisYCat :: [Competencia] -> Pais -> Categoria -> [Competencia]
-auxNuevasCompetenciasSinAtletasConPaisYCat [] _ _ = []
-auxNuevasCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat
-    | (categoriaC compe == cat) =
+auxRankingSinAtletasConPais :: [Atleta] -> Pais -> [Int]
+auxRankingSinAtletasConPais (atle:atletas) pais | (nacionalidadA atle) == pais = auxRankingSinAtletasConPais atletas pais
+                                                | otherwise = (ciaNumberA atle) : (auxRankingSinAtletasConPais atletas pais)
+
+auxDoppingSinAtletasConPais :: [Atleta] -> Pais -> Competencia -> [(Int, Bool)]
+auxDoppingSinAtletasConPais (atle:atletas) pais compe | (nacionalidadA atle) == pais = auxDoppingSinAtletasConPais atletas pais compe
+                                          | otherwise = (ciaNumberA atle,leDioPositivoC compe atle) : (auxDoppingSinAtletasConPais atletas pais compe)
+
+auxCompetenciasSinAtletasConPaisYCat :: [Competencia] -> Pais -> Categoria -> [Competencia]
+auxCompetenciasSinAtletasConPaisYCat [] _ _ = []
+auxCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat
+    | (categoriaC compe == cat) && (not (finalizadaC compe)) =
         (nuevaC (fst(categoriaC compe))
                 (snd(categoriaC compe))
                 (auxSacarAtletasConPais (participantesC compe) pais))
-            : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
-    | otherwise = compe : (auxNuevasCompetenciasSinAtletasConPaisYCat competencias pais cat)
+            : (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
+    | (categoriaC compe == cat) && (finalizadaC compe) = 
+                (finalizarC (nuevaC (fst(categoriaC compe)) (snd(categoriaC compe)) 
+                  (auxSacarAtletasConPais (participantesC compe) pais))
+                (auxRankingSinAtletasConPais (rankingC compe) pais) 
+                (auxDoppingSinAtletasConPais (lesTocoControlAntiDopingC compe) pais compe)
+                )
+            : (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
+    | otherwise = compe : (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
+
 
 
 auxSacarAtletasConPais :: [Atleta] -> Pais -> [Atleta]
