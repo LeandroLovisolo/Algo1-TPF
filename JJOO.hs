@@ -58,37 +58,31 @@ auxDePaseoJ (NuevoDia (compe:competencias) juegos) atles = auxDePaseoJ (NuevoDia
 auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
 
 
--------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- medalleroJ -----------------------------------------------------------------
+-------------------------------------------------------------------------------
 
---medalleroJ :: JJOO -> [(Pais, [Integer])]
---medalleroJ j = medallero (paisesQueGanaron j)
---    where medallero [] = []
---          medallero (x:xs) = (x, medalleroPorPais x) : medallero xs
---          paisesQueGanaron j = ?
---          medalleroPorPais p = ?
---          medallistas = ?
-
-medalleroJ :: [Competencia] -> [(Pais, [Int])]
-medalleroJ cs = medallero (paisesGanadoresOrdenados cs)
+medalleroJ :: JJOO -> [(Pais, [Int])]
+medalleroJ j = medallero (paisesGanadoresOrdenados j)
     where medallero [] = []
-          medallero (x:xs) = (medalleroPorPais x cs) : medallero xs
+          medallero (x:xs) = (medalleroPorPais x j) : medallero xs
 
-paisesGanadoresOrdenados :: [Competencia] -> [Pais]
-paisesGanadoresOrdenados cs = ordenar (paisesGanadores cs)
+paisesGanadoresOrdenados :: JJOO -> [Pais]
+paisesGanadoresOrdenados j = ordenar (paisesGanadores j)
     where ordenar [] = []
           ordenar [p] = [p]
           ordenar (p1:p2:ps) = bubbleSort (p1:p2:ps) [] False
           bubbleSort (p1:p2:ps) acc flag
-            | (tieneMasMedallas p1 p2 cs) = bubbleSort (p2:ps) (acc ++ [p1]) flag
-            | otherwise                   = bubbleSort (p1:ps) (acc ++ [p2]) True
+            | (tieneMasMedallas p1 p2 j) = bubbleSort (p2:ps) (acc ++ [p1]) flag
+            | otherwise                  = bubbleSort (p1:ps) (acc ++ [p2]) True
           bubbleSort [p] acc flag
             | flag == True = bubbleSort (acc ++ [p]) [] False
             | otherwise    = (acc ++ [p])
 
-paisesGanadores :: [Competencia] -> [Pais]
-paisesGanadores xs = sinRepetidos (obtenerPaises ((auxMedallistas xs 0) ++
-                                                  (auxMedallistas xs 1) ++
-                                                  (auxMedallistas xs 2)))
+paisesGanadores :: JJOO -> [Pais]
+paisesGanadores j = sinRepetidos (obtenerPaises ((medallistas 0 j) ++
+                                                 (medallistas 1 j) ++
+                                                 (medallistas 2 j)))
     where obtenerPaises [] = []
           obtenerPaises (x:xs) = (nacionalidadA x) : obtenerPaises xs
 
@@ -99,33 +93,14 @@ sinRepetidos (x:xs) = if (elem (last (x:xs)) (init (x:xs)))
                          then sinRepetidos (init (x:xs))
                          else (sinRepetidos (init (x:xs))) ++ [last (x:xs)]
 
--- Dada una lista de competencias finalizas y una posición, devuelve
--- todos los atletas que finalizaron en esa posición.
-auxMedallistas :: [Competencia] -> Int -> [Atleta]
-auxMedallistas [] m = []
-auxMedallistas (x:xs) m
-    | (length (rankingC x)) <= m = auxMedallistas xs m
-    | otherwise                  = (rankingC x !! m) : auxMedallistas xs m
-
-tieneMasMedallas :: Pais -> Pais -> [Competencia] -> Bool
-tieneMasMedallas p1 p2 cs =
-    let m1 = snd (medalleroPorPais p1 cs)
-        m2 = snd (medalleroPorPais p2 cs)
-    in   (m1 !! 0 >  m2 !! 0) ||
-        ((m1 !! 0 == m2 !! 0) && (m1 !! 1 >  m2 !! 1)) ||
-        ((m1 !! 0 == m2 !! 0) && (m1 !! 1 == m2 !! 1) && (m1 !! 2 >= m2 !! 2))
-
-medalleroPorPais :: Pais -> [Competencia] -> (Pais, [Int])
-medalleroPorPais p [] = (p, [0, 0, 0])
-medalleroPorPais p as = (p, (medallero p as))
-    where medallero p as = [length (medallas p as 0),
-                            length (medallas p as 1),
-                            length (medallas p as 2)]
-          medallas p as pos = filtrarPorPais p (auxMedallistas as pos)
-          filtrarPorPais p [] = []
-          filtrarPorPais p (x:xs) = if nacionalidadA x == p
-                                    then x : (filtrarPorPais p xs)
-                                    else filtrarPorPais p xs
+-- Dados unos JJOO y una posición, devuelve todos los atletas
+-- que finalizaron alguna competencia en esa posición.
+medallistas :: Int -> JJOO -> [Atleta]
+medallistas m j = obtenerMedallistas (competenciasFinalizadas j) m
+    where obtenerMedallistas [] m = []
+          obtenerMedallistas (x:xs) m
+              | (length (rankingC x)) <= m = obtenerMedallistas xs m
+              | otherwise                  = (rankingC x !! m) : obtenerMedallistas xs m
 
 -- Devuelve las competencias finalizadas hasta la jornada actual inclusive. 
 competenciasFinalizadas :: JJOO -> [Competencia]
@@ -137,46 +112,28 @@ competenciasFinalizadas j = competencias (jornadaActualJ j) j
                                    then c : soloFinalizadas cs
                                    else soloFinalizadas cs
 
-testJJOO :: JJOO
-testJJOO = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 testAtletas 2)))
-    where cronograma = [dia1, dia2, dia3]
-          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
-                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
-                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
-          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
-                  (competencia  "Arqueria"),
-                  (competencia  "Natacion")]
-          dia3 = [(competencia  "Gimnasia Artistica"),
-                  (competencia  "Hockey"),
-                  (competencia  "Rugby")]
-          competenciaF dep pos = finalizarC (nuevaC dep Masculino testAtletas) pos []
-          competencia  dep     = (nuevaC dep Masculino testAtletas)
+tieneMasMedallas :: Pais -> Pais -> JJOO -> Bool
+tieneMasMedallas p1 p2 j =
+    let m1 = snd (medalleroPorPais p1 j)
+        m2 = snd (medalleroPorPais p2 j)
+    in   (m1 !! 0 >  m2 !! 0) ||
+        ((m1 !! 0 == m2 !! 0) && (m1 !! 1 >  m2 !! 1)) ||
+        ((m1 !! 0 == m2 !! 0) && (m1 !! 1 == m2 !! 1) && (m1 !! 2 >= m2 !! 2))
 
--- Datos de prueba. Devuelve una lista de competencias finalizadas.
-testCompetencias :: [Competencia]
-testCompetencias = [(competencia "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
-                    (competencia "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
-                    (competencia "Basket"   [111, 555, 333, 444, 888, 222, 666, 777]),
-                    (competencia "Volley"   [555, 222, 444, 111, 666, 888, 777, 333])]
-	where competencia deporte posiciones =
-		finalizarC (nuevaC deporte Masculino testAtletas) posiciones []
+medalleroPorPais :: Pais -> JJOO -> (Pais, [Int])
+medalleroPorPais p j = (p, (medallero p j))
+    where medallero p j = [length (medallas p 0 j),
+                           length (medallas p 1 j),
+                           length (medallas p 2 j)]
+          medallas p m j = filtrarPorPais p (medallistas m j)
+          filtrarPorPais p [] = []
+          filtrarPorPais p (x:xs) = if nacionalidadA x == p
+                                    then x : (filtrarPorPais p xs)
+                                    else filtrarPorPais p xs
 
--- Datos de prueba. Devuelve una lista de atletas entrenados en ciertos deportes.
-testAtletas :: [Atleta]
-testAtletas = map entrenarDeportes atletas 
-  where atletas = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
-                   (nuevoA "Beto"     Masculino 19 "Brasil"    222),
-                   (nuevoA "Carlos"   Masculino 20 "Chile"     333),
-                   (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444),
-                   (nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
-                   (nuevoA "Federico" Masculino 22 "Francia"   666),
-                   (nuevoA "Gabriel"  Masculino 22 "Grecia"    777),
-                   (nuevoA "Horacio"  Masculino 22 "Honduras"  888)]
-        deportes = ["Futbol", "Basket", "Volley"]
-        entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
-        entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte 10
-
----------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+-- Fin de medalleroJ ----------------------------------------------------------
+-------------------------------------------------------------------------------
 
 
 losMasFracasadosJ         = undefined
@@ -245,3 +202,48 @@ auxRecorreCronograma (NuevoDia competencias juegos) cate pais = (auxRecorreCrono
 
 boicotPorDisciplinaJ :: JJOO -> (Deporte, Sexo) -> Pais -> JJOO
 boicotPorDisciplinaJ juegos cat pais = nuevoJConJornadaActual  (anioJ juegos) (atletasJ juegos) (auxRecorreCronograma juegos cat pais) (jornadaActualJ juegos)
+
+
+-------------------------------------------------------------------------------
+-- Datos de prueba ------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+-- Devuelve unos JJOO con algunas competencias finalizadas y otras no.
+testJJOO :: JJOO
+testJJOO = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 testAtletas 2)))
+    where cronograma = [dia1, dia2, dia3]
+          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
+                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
+          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
+                  (competencia  "Arqueria"),
+                  (competencia  "Natacion")]
+          dia3 = [(competencia  "Gimnasia Artistica"),
+                  (competencia  "Hockey"),
+                  (competencia  "Rugby")]
+          competenciaF dep pos = finalizarC (nuevaC dep Masculino testAtletas) pos []
+          competencia  dep     = (nuevaC dep Masculino testAtletas)
+
+
+-- Devuelve una lista de competencias finalizadas.
+testCompetencias :: [Competencia]
+testCompetencias = [(competencia "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
+                    (competencia "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
+                    (competencia "Basket"   [111, 555, 333, 444, 888, 222, 666, 777]),
+                    (competencia "Volley"   [555, 222, 444, 111, 666, 888, 777, 333])]
+    where competencia dep pos = finalizarC (nuevaC dep Masculino testAtletas) pos []
+
+-- Devuelve una lista de atletas entrenados en ciertos deportes.
+testAtletas :: [Atleta]
+testAtletas = map entrenarDeportes atletas 
+  where atletas = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
+                   (nuevoA "Beto"     Masculino 19 "Brasil"    222),
+                   (nuevoA "Carlos"   Masculino 20 "Chile"     333),
+                   (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444),
+                   (nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
+                   (nuevoA "Federico" Masculino 22 "Francia"   666),
+                   (nuevoA "Gabriel"  Masculino 22 "Grecia"    777),
+                   (nuevoA "Horacio"  Masculino 22 "Honduras"  888)]
+        deportes = ["Futbol", "Basket", "Volley"]
+        entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
+        entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte 10
