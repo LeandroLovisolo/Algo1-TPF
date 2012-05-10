@@ -42,8 +42,10 @@ auxExisteDeporte (x:xs) dep | (fst x) == dep = True
 
 auxModificaCapacidad :: [(Deporte, Int)] -> Deporte -> Int -> [(Deporte, Int)]
 auxModificaCapacidad [] _ _ = []
-auxModificaCapacidad (deporte:ldeportes) depAModificar capAModificar | (fst deporte) == depAModificar = ((fst deporte), capAModificar) : (auxModificaCapacidad ldeportes depAModificar capAModificar)
-																	 | otherwise = deporte : (auxModificaCapacidad ldeportes depAModificar capAModificar)
+auxModificaCapacidad (deporte:ldeportes) depAModificar capAModificar
+	| (fst deporte) == depAModificar =
+		((fst deporte), capAModificar) : (auxModificaCapacidad ldeportes depAModificar capAModificar)
+	| otherwise = deporte : (auxModificaCapacidad ldeportes depAModificar capAModificar)
 
 auxAgregarDeporte :: [(Deporte, Int)] -> Deporte -> Int -> [(Deporte, Int)]
 auxAgregarDeporte [] a b = [(a,b)]
@@ -51,8 +53,10 @@ auxAgregarDeporte (x:xs) dep cap | dep <= fst x = (dep,cap): (x:xs)
 								| dep > fst x = x: auxAgregarDeporte xs dep cap
 
 entrenarDeporteA :: Atleta -> Deporte -> Int -> Atleta
-entrenarDeporteA (A nombre sexo anio pais cia deportes) depPorAgregar capPorAgregar | auxExisteDeporte deportes depPorAgregar = (A nombre sexo anio pais cia (auxModificaCapacidad deportes depPorAgregar capPorAgregar) )
-																				    | otherwise = (A nombre sexo anio pais cia (auxAgregarDeporte deportes depPorAgregar capPorAgregar))
+entrenarDeporteA (A nombre sexo anio pais cia deportes) depPorAgregar capPorAgregar
+	| auxExisteDeporte deportes depPorAgregar =
+		(A nombre sexo anio pais cia (auxModificaCapacidad deportes depPorAgregar capPorAgregar) )
+	| otherwise = (A nombre sexo anio pais cia (auxAgregarDeporte deportes depPorAgregar capPorAgregar))
 
 atleta :: String->Sexo->Int->Pais->Int->[(Deporte, Int)]-> Atleta
 atleta a b c d e f = A a b c d e f

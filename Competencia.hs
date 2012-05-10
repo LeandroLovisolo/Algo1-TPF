@@ -32,8 +32,9 @@ finalizadaC _ = False
 
 auxAletasConCia :: [Int] -> [Atleta] -> [Atleta]
 auxAletasConCia _ [] = []
-auxAletasConCia ciaNumbers (atle:atletas) | elem (ciaNumberA atle) ciaNumbers = atle : (auxAletasConCia ciaNumbers atletas)
-										  | otherwise = auxAletasConCia ciaNumbers atletas
+auxAletasConCia ciaNumbers (atle:atletas)
+	| elem (ciaNumberA atle) ciaNumbers = atle : (auxAletasConCia ciaNumbers atletas)
+	| otherwise = auxAletasConCia ciaNumbers atletas
 auxAtletaConCia :: Int -> [Atleta] -> Atleta
 auxAtletaConCia cia (atle:atletas) | (ciaNumberA atle) == cia = atle
                                    | otherwise = auxAtletaConCia cia atletas
@@ -50,7 +51,8 @@ rankingC (Finalizar ciaNumbers _ c) = atletas ciaNumbers c
           buscarAtleta x (a:as) = if (ciaNumberA a) == x then a else (buscarAtleta x as);
 
 lesTocoControlAntiDopingC :: Competencia -> [Atleta]
-lesTocoControlAntiDopingC (Finalizar _ dopping compe) = auxAletasConCia (auxCiaDoppingVerdadero dopping) (participantesC compe)
+lesTocoControlAntiDopingC (Finalizar _ dopping compe) =
+	auxAletasConCia (auxCiaDoppingVerdadero dopping) (participantesC compe)
 
 leDioPositivoC :: Competencia -> Atleta -> Bool
 leDioPositivoC (Finalizar _ dopping _) atle = elem (ciaNumberA atle) (auxCiaDoppingVerdadero dopping)
@@ -60,20 +62,29 @@ finalizarC compe posiciones dopping = Finalizar posiciones dopping compe
 
 linfordChristieC :: Competencia -> Atleta -> Competencia
 linfordChristieC (C cat) _ = C cat
-linfordChristieC (Participar atle compe) atletaASacar | (ciaNumberA atle) /= (ciaNumberA atletaASacar) = Participar atle (linfordChristieC compe atletaASacar)
-													  | otherwise = (linfordChristieC compe atletaASacar)
+linfordChristieC (Participar atle compe) atletaASacar
+	| (ciaNumberA atle) /= (ciaNumberA atletaASacar) =
+		Participar atle (linfordChristieC compe atletaASacar)
+	| otherwise = (linfordChristieC compe atletaASacar)
 
 auxSinTramposos :: [Int] -> [(Int, Bool)] -> [Int]
-auxSinTramposos (rank:ranking) dopping | elem rank (auxCiaDoppingVerdadero dopping) = auxSinTramposos ranking dopping
-									   | otherwise = rank : (auxSinTramposos ranking dopping)
+auxSinTramposos (rank:ranking) dopping
+	| elem rank (auxCiaDoppingVerdadero dopping) = auxSinTramposos ranking dopping
+	| otherwise                                  = rank : (auxSinTramposos ranking dopping)
 
 sancionarTrampososC :: Competencia -> Competencia
-sancionarTrampososC (Finalizar ranking dopping compe) = Finalizar (auxSinTramposos ranking dopping) dopping compe
+sancionarTrampososC (Finalizar ranking dopping compe) =
+	Finalizar (auxSinTramposos ranking dopping) dopping compe
 
 gananLosMasCapacesC :: Competencia -> Bool
 gananLosMasCapacesC (Finalizar [] dopping compe) = True
 gananLosMasCapacesC (Finalizar [x] dopping compe) = True
-gananLosMasCapacesC (Finalizar (frank:srank:ranking) dopping compe) = (capacidadA (auxAtletaConCia frank (participantesC compe)) (fst (categoriaC compe))) >= (capacidadA (auxAtletaConCia srank (participantesC compe)) (fst (categoriaC compe))) && gananLosMasCapacesC (Finalizar ranking dopping compe)
+gananLosMasCapacesC (Finalizar (frank:srank:ranking) dopping compe) =
+	(capacidadA (auxAtletaConCia frank (participantesC compe))
+		        (fst (categoriaC compe))) >=
+	(capacidadA (auxAtletaConCia srank (participantesC compe))
+				(fst (categoriaC compe))) &&
+	gananLosMasCapacesC (Finalizar ranking dopping compe)
 
 instance Show Competencia where
 	show c = "Competencia " ++ show (categoriaC c) ++ (participantes c) ++ (ranking c)
