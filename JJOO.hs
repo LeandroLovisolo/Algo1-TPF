@@ -29,11 +29,11 @@ cantDiasJ :: JJOO -> Int
 cantDiasJ (J _ _ _) = 0
 cantDiasJ (NuevoDia _ juegos) = 1 + cantDiasJ juegos
 
---cronograma anterior daba los resultados al revez, el 1er dia mostraba las competencias del ultimo NuevoDia
 cronogramaJ :: JJOO -> Int -> [Competencia]
 cronogramaJ (J _ _ _) _ = []
-cronogramaJ (NuevoDia competencias juegos) dias | dias == cantDiasJ juegos+1	 = competencias
-												| otherwise = cronogramaJ juegos dias
+cronogramaJ (NuevoDia competencias juegos) dias 
+    | dias == (cantDiasJ juegos) + 1 = competencias
+    | otherwise                      = cronogramaJ juegos dias
 
 jornadaActualJ :: JJOO -> Int
 jornadaActualJ (J _ _ jornadaActual) = jornadaActual
@@ -244,6 +244,6 @@ testAtletas = map entrenarDeportes atletas
                    (nuevoA "Federico" Masculino 22 "Francia"   666),
                    (nuevoA "Gabriel"  Masculino 22 "Grecia"    777),
                    (nuevoA "Horacio"  Masculino 22 "Honduras"  888)]
-        deportes = ["Futbol", "Basket", "Volley"]
+        deportes = ["Futbol", "Handball", "Basket", "Volley"]
         entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
         entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte 10
