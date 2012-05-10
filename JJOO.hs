@@ -13,11 +13,9 @@ data JJOO = J Int [Atleta] Int
           | NuevoDia [Competencia] JJOO
             deriving (Show)
 
---Sinceramente no tengo la mas puta idea de el tema de dia actual, no se puede hacer dia actual si J Int [Atleta] Int es uno solo
 nuevoJ :: Int -> [Atleta] -> [[Competencia]] -> JJOO
 nuevoJ anio atletas [] = (J anio atletas 1)
-nuevoJ anio atletas (compe:competencias) = NuevoDia compe (nuevoJ anio atletas competencias)
-
+nuevoJ anio atletas (x:xs) = NuevoDia x (nuevoJ anio atletas xs)
 
 anioJ :: JJOO -> Int
 anioJ (J anio _ _) = anio
