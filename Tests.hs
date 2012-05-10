@@ -64,6 +64,13 @@ runtests = runTestTT tests
 
 
 tests = TestList [
+        "lesTocoControlAntiDopingC: devuelve los atletas correctos" ~:
+            [222, 444] @=? map ciaNumberA (lesTocoControlAntiDopingC dataAntiDoping),
+
+        "leDioPositivoC: devuelve los valores correctos" ~:
+            [False, True] @=? map (\a -> leDioPositivoC dataAntiDoping a)
+                                  (lesTocoControlAntiDopingC dataAntiDoping),
+
         "dePaseoJ: devuelve los atletas correctos" ~:
             [555, 666] @=? map ciaNumberA (dePaseoJ dataDePaseoJ),
 
@@ -92,6 +99,10 @@ tests = TestList [
             [888, 777, 666, 555, 444, 333, 222, 111] @=?
                 map ciaNumberA (rankingC ((cronogramaJ (transcurrirDiaJ dataTranscurrirDiaJ) 2) !! 2)),
 
+        "transcurrirDiaJ: control antidoping a un atleta de cada competencia no finalizada" ~:
+            [0,1,1] @=? map (\c -> length (lesTocoControlAntiDopingC c))
+                            (cronogramaJ (transcurrirDiaJ dataTranscurrirDiaJ) 2),
+
         "medalleroJ: devuelve los valores correctos" ~:
             [("Argentina", [2, 1, 0]),
              ("Ecuador",   [1, 1, 0]),
@@ -106,6 +117,10 @@ tests = TestList [
 -- Datos de prueba ------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+dataAntiDoping :: Competencia
+dataAntiDoping = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
+                            [111, 222, 333, 444, 555, 666, 777, 888]
+                            [(222, False), (444, True)]
 
 dataDePaseoJ :: JJOO
 dataDePaseoJ = NuevoDia dia2 (NuevoDia dia1 (J 2012 (atletasActivos ++ atletasDePaseo) 1))

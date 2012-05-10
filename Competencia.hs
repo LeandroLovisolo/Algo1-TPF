@@ -30,20 +30,6 @@ finalizadaC :: Competencia -> Bool
 finalizadaC (Finalizar _ _ _) = True
 finalizadaC _ = False
 
-auxAletasConCia :: [Int] -> [Atleta] -> [Atleta]
-auxAletasConCia _ [] = []
-auxAletasConCia ciaNumbers (atle:atletas)
-	| elem (ciaNumberA atle) ciaNumbers = atle : (auxAletasConCia ciaNumbers atletas)
-	| otherwise = auxAletasConCia ciaNumbers atletas
-auxAtletaConCia :: Int -> [Atleta] -> Atleta
-auxAtletaConCia cia (atle:atletas) | (ciaNumberA atle) == cia = atle
-                                   | otherwise = auxAtletaConCia cia atletas
-
-auxCiaDoppingVerdadero :: [(Int, Bool)] -> [Int] 
-auxCiaDoppingVerdadero [] = []
-auxCiaDoppingVerdadero (x:xs) | (snd x) == True = (fst x) : auxCiaDoppingVerdadero xs
-							  | otherwise = auxCiaDoppingVerdadero xs
-
 rankingC :: Competencia -> [Atleta]
 rankingC (Finalizar ciaNumbers _ c) = atletas ciaNumbers c
     where atletas [] c = [];
@@ -51,11 +37,18 @@ rankingC (Finalizar ciaNumbers _ c) = atletas ciaNumbers c
           buscarAtleta x (a:as) = if (ciaNumberA a) == x then a else (buscarAtleta x as);
 
 lesTocoControlAntiDopingC :: Competencia -> [Atleta]
-lesTocoControlAntiDopingC (Finalizar _ dopping compe) =
-	auxAletasConCia (auxCiaDoppingVerdadero dopping) (participantesC compe)
+lesTocoControlAntiDopingC (Finalizar _ dopping c) = buscarAtletas dopping c
+    where buscarAtletas [] c = []
+          buscarAtletas (x:xs) c = (buscarAtleta (fst x) (participantesC c)) : buscarAtletas xs c
+          buscarAtleta ciaNumber (x:xs)
+            | ciaNumber == ciaNumberA x = x
+            | otherwise                 = buscarAtleta ciaNumber xs
 
 leDioPositivoC :: Competencia -> Atleta -> Bool
-leDioPositivoC (Finalizar _ dopping _) atle = elem (ciaNumberA atle) (auxCiaDoppingVerdadero dopping)
+leDioPositivoC (Finalizar _ dopping _) a = buscar dopping (ciaNumberA a)
+    where buscar (x:xs) ciaNumber
+            | fst x == ciaNumber = snd x
+            | otherwise          = buscar xs ciaNumber
 
 finalizarC :: Competencia -> [Int] -> [(Int, Bool)] -> Competencia
 finalizarC compe posiciones dopping = Finalizar posiciones dopping compe
@@ -63,36 +56,45 @@ finalizarC compe posiciones dopping = Finalizar posiciones dopping compe
 linfordChristieC :: Competencia -> Atleta -> Competencia
 linfordChristieC (C cat) _ = C cat
 linfordChristieC (Participar atle compe) atletaASacar
-	| (ciaNumberA atle) /= (ciaNumberA atletaASacar) =
-		Participar atle (linfordChristieC compe atletaASacar)
-	| otherwise = (linfordChristieC compe atletaASacar)
-
-auxSinTramposos :: [Int] -> [(Int, Bool)] -> [Int]
-auxSinTramposos (rank:ranking) dopping
-	| elem rank (auxCiaDoppingVerdadero dopping) = auxSinTramposos ranking dopping
-	| otherwise                                  = rank : (auxSinTramposos ranking dopping)
+    | (ciaNumberA atle) /= (ciaNumberA atletaASacar) =
+        Participar atle (linfordChristieC compe atletaASacar)
+    | otherwise = (linfordChristieC compe atletaASacar)
 
 sancionarTrampososC :: Competencia -> Competencia
 sancionarTrampososC (Finalizar ranking dopping compe) =
-	Finalizar (auxSinTramposos ranking dopping) dopping compe
+    Finalizar (auxSinTramposos ranking dopping) dopping compe
+
+auxSinTramposos :: [Int] -> [(Int, Bool)] -> [Int]
+auxSinTramposos (rank:ranking) dopping
+    | elem rank (auxCiaDoppingVerdadero dopping) = auxSinTramposos ranking dopping
+    | otherwise                                  = rank : (auxSinTramposos ranking dopping)
+
+auxCiaDoppingVerdadero :: [(Int, Bool)] -> [Int] 
+auxCiaDoppingVerdadero [] = []
+auxCiaDoppingVerdadero (x:xs) | (snd x) == True = (fst x) : auxCiaDoppingVerdadero xs
+                              | otherwise = auxCiaDoppingVerdadero xs
 
 gananLosMasCapacesC :: Competencia -> Bool
 gananLosMasCapacesC (Finalizar [] dopping compe) = True
 gananLosMasCapacesC (Finalizar [x] dopping compe) = True
 gananLosMasCapacesC (Finalizar (frank:srank:ranking) dopping compe) =
-	(capacidadA (auxAtletaConCia frank (participantesC compe))
-		        (fst (categoriaC compe))) >=
-	(capacidadA (auxAtletaConCia srank (participantesC compe))
-				(fst (categoriaC compe))) &&
-	gananLosMasCapacesC (Finalizar ranking dopping compe)
+    (capacidadA (auxAtletaConCia frank (participantesC compe))
+                (fst (categoriaC compe))) >=
+    (capacidadA (auxAtletaConCia srank (participantesC compe))
+                (fst (categoriaC compe))) &&
+    gananLosMasCapacesC (Finalizar ranking dopping compe)
+
+auxAtletaConCia :: Int -> [Atleta] -> Atleta
+auxAtletaConCia cia (atle:atletas) | (ciaNumberA atle) == cia = atle
+                                   | otherwise = auxAtletaConCia cia atletas
 
 instance Show Competencia where
-	show c = "Competencia " ++ show (categoriaC c) ++ (participantes c) ++ (ranking c)
-		where participantes c = if length (participantesC c) > 0
-			                    then ": " ++ show (participantesC c)
-			                    else "";
-			  ranking c = if finalizadaC c
-			  	          then ", ranking: [" ++ ciaNumbers (rankingC c) ++ "]"
-			  	          else "";
-			  ciaNumbers [x] = (show (ciaNumberA x));
-			  ciaNumbers (x:xs) = (show (ciaNumberA x)) ++ "," ++ ciaNumbers xs;
+    show c = "Competencia " ++ show (categoriaC c) ++ (participantes c) ++ (ranking c)
+        where participantes c = if length (participantesC c) > 0
+                                then ": " ++ show (participantesC c)
+                                else "";
+              ranking c = if finalizadaC c
+                          then ", ranking: [" ++ ciaNumbers (rankingC c) ++ "]"
+                          else "";
+              ciaNumbers [x] = (show (ciaNumberA x));
+              ciaNumbers (x:xs) = (show (ciaNumberA x)) ++ "," ++ ciaNumbers xs;
