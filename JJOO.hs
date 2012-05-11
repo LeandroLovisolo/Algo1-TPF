@@ -431,10 +431,44 @@ stevenBradburyJ j = buscarElMenosCapaz (tuplasMedallistasCapacidad j)
 -- sequiaOlimpicaJ ------------------------------------------------------------
 -------------------------------------------------------------------------------
 
-sequiaOlimpicaJ           = undefined
+sequiaOlimpicaJ j = buscarMasSecos (obtenerPaises (atletasJ j)) (obtenerPaises (atletasJ j))
+    where buscarMasSecos [] _ = []
+          buscarMasSecos [x] _ = [x]
+          buscarMasSecos (x:xs) paises
+              | esMasSeco x paises = x:(buscarMasSecos xs paises)
+              | otherwise          = buscarMasSecos xs paises
+          esMasSeco _ [] = True
+          esMasSeco w (x:xs) = (maxDiasSinGanar w j >= maxDiasSinGanar x j) &&
+                               (esMasSeco w xs)
 
 obtenerPaises [] = []
 obtenerPaises (x:xs) = (nacionalidadA x):sinRepetidos (obtenerPaises xs)
+
+maxDiasSinGanar p j = buscarMax (calcularDiferencias (jornadas p j))
+    where jornadas p j= 0 : (jornadasEnLasQueGano p j) ++ [jornadaActualJ j]
+
+calcularDiferencias [x,y] = [y - x]
+calcularDiferencias (x1:x2:xs) = (x2 - x1):(calcularDiferencias (x2:xs))
+
+buscarMax [x] = x
+buscarMax (x:xs)
+    | esMax x xs = x
+    | otherwise  = buscarMax xs
+    where esMax _ [] = True
+          esMax w (x:xs) = (w >= x) && (esMax w xs)
+
+jornadasEnLasQueGano p j = acumularJornadasEnLasQueGano p 1 j
+acumularJornadasEnLasQueGano p d j
+    | d > jornadaActualJ j     = []
+    | ganoMedallasEseDia p d j = d:(acumularJornadasEnLasQueGano p (d + 1) j)
+    | otherwise                =    acumularJornadasEnLasQueGano p (d + 1) j
+
+ganoMedallasEseDia p d j = ganoAlgunaMedalla p (filtrarFinalizadas (cronogramaJ j d))
+
+filtrarFinalizadas [] = []
+filtrarFinalizadas (x:xs)
+    | finalizadaC x = x:(filtrarFinalizadas xs)
+    | otherwise     = filtrarFinalizadas xs
 
 ganoAlgunaMedalla p [] = False
 ganoAlgunaMedalla p (x:xs) = (salioEnPosicion p 1 x  ||
@@ -447,40 +481,3 @@ salioEnPosicion pais pos c = length (rankingC c) >= pos &&
 -------------------------------------------------------------------------------
 -- Fin de sequiaOlimpicaJ -----------------------------------------------------
 -------------------------------------------------------------------------------
-
-
-
-
-
-
-
-dataJJOO :: JJOO
-dataJJOO = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 dataAtletas 2)))
-    where cronograma = [dia1, dia2, dia3]
-          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
-                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
-                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
-          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
-                  (competencia  "Arqueria"),
-                  (competencia  "Natacion")]
-          dia3 = [(competencia  "Gimnasia Artistica"),
-                  (competencia  "Hockey"),
-                  (competencia  "Rugby")]
-          competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
-          competencia  dep     = (nuevaC dep Masculino dataAtletas)
-
-dataAtletas :: [Atleta]
-dataAtletas = map entrenarDeportes atletas 
-  where atletas = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
-                   (nuevoA "Beto"     Masculino 19 "Brasil"    222),
-                   (nuevoA "Carlos"   Masculino 20 "Chile"     333),
-                   (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444),
-                   (nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
-                   (nuevoA "Federico" Masculino 23 "Francia"   666),
-                   (nuevoA "Gabriel"  Masculino 24 "Grecia"    777),
-                   (nuevoA "Horacio"  Masculino 25 "Honduras"  888),
-                   (nuevoA "Hector"   Masculino 26 "Honduras"  999)]
-        deportes = ["Futbol", "Handball", "Basket", "Volley", "Arqueria", "Natacion"]
-        entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
-        entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte (capacidad atleta)
-        capacidad atleta = ciaNumberA atleta
