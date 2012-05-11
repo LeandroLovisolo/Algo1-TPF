@@ -146,8 +146,8 @@ dataMedalleroJ :: JJOO
 dataMedalleroJ = dataTranscurrirDiaJ
 
 dataTranscurrirDiaJ :: JJOO
-dataTranscurrirDiaJ = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 dataAtletas 2)))
-    where cronograma = [dia1, dia2, dia3]
+dataTranscurrirDiaJ = NuevoDia dia4 (NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 dataAtletas 2))))
+    where cronograma = [dia1, dia2, dia3, dia4]
           dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
                   (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
                   (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
@@ -157,6 +157,9 @@ dataTranscurrirDiaJ = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 dataAt
           dia3 = [(competencia  "Gimnasia Artistica"),
                   (competencia  "Hockey"),
                   (competencia  "Rugby")]
+          dia4 = [(competencia  "Bmx" [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competencia  "Skate"),
+                  (competencia  "Snowboard")]
           competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
           competencia  dep     = (nuevaC dep Masculino dataAtletas)
 
