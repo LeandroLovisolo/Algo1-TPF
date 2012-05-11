@@ -364,15 +364,11 @@ auxMeterPais [] pais = [(pais,1)]
 auxMeterPais (pais:paises) paisAMeter | ((fst pais) == paisAMeter) = (fst pais, (snd(pais)+1)) : paises
                     | otherwise = pais : (auxMeterPais paises paisAMeter)
 
---capaz que esto explota con no finalizada
 auxPaisesGanadoresEnElDia :: [Competencia] -> [(Pais, Int)] -> [(Pais, Int)]
 auxPaisesGanadoresEnElDia [] paises = paises
 auxPaisesGanadoresEnElDia (compe:competencias) paises | (finalizadaC compe) && (length (rankingC compe) > 0) =
   auxPaisesGanadoresEnElDia competencias (auxMeterPais paises (nacionalidadA ((rankingC compe)!!0)))
                                                | otherwise = auxPaisesGanadoresEnElDia competencias paises
-
----------------------------------------------------------------------------------------------
----------------- Falta completar auxExistePatron --------------------------------------------
 
 auxRecorreYCompara :: [Pais] -> Pais -> Pais -> Int -> Int -> Bool
 auxRecorreYCompara paises paisBuscado paisSiguiente 0 maximo | ((paises!!0) == paisBuscado) && ((paises!!1) == paisSiguiente) = True
@@ -390,7 +386,6 @@ auxExistePatron paises 0 maximo = auxRecorreYCompara paises (paises!!0) (paises!
 auxExistePatron paises indice maximo | (indice == maximo) = True && (auxExistePatron paises (indice-1) maximo)
                      | otherwise = (auxRecorreYCompara paises (paises!!indice) (paises!!(indice+1)) maximo maximo) && 
                           (auxExistePatron paises (indice-1) maximo)
-----------------------------------------------------------------------------------------------
 
 uyOrdenadoAsiHayUnPatronJ :: JJOO -> Bool
 uyOrdenadoAsiHayUnPatronJ juegos = auxUyOrdenadoAsiHayUnPatronJ juegos []
