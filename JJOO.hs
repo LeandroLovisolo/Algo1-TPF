@@ -430,7 +430,7 @@ stevenBradburyJ j = buscarElMenosCapaz (tuplasMedallistasCapacidad j)
 -------------------------------------------------------------------------------
 -- sequiaOlimpicaJ ------------------------------------------------------------
 -------------------------------------------------------------------------------
-
+sequiaOlimpicaJ :: JJOO -> [Pais]
 sequiaOlimpicaJ j = buscarMasSecos (obtenerPaises (atletasJ j)) (obtenerPaises (atletasJ j))
     where buscarMasSecos [] _ = []
           buscarMasSecos [x] _ = [x]
