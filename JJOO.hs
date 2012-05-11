@@ -2,7 +2,7 @@ module JJOO (JJOO, nuevoJ, anioJ, atletasJ, cantDiasJ, cronogramaJ,
              jornadaActualJ, dePaseoJ, medalleroJ,
              boicotPorDisciplinaJ, losMasFracasadosJ, liuSongJ,
              stevenBradburyJ, uyOrdenadoAsiHayUnPatronJ, sequiaOlimpicaJ,
-             transcurrirDiaJ)
+             transcurrirDiaJ, auxRecorreYCompara)
 where
 
 import Tipos
@@ -365,24 +365,34 @@ auxMeterPais [] pais = [(pais,1)]
 auxMeterPais (pais:paises) paisAMeter | ((fst pais) == paisAMeter) = (fst pais, (snd(pais)+1)) : paises
                     | otherwise = pais : (auxMeterPais paises paisAMeter)
 
---capaz que esto explota con no finalizada
 auxPaisesGanadoresEnElDia :: [Competencia] -> [(Pais, Int)] -> [(Pais, Int)]
 auxPaisesGanadoresEnElDia [] paises = paises
 auxPaisesGanadoresEnElDia (compe:competencias) paises | (finalizadaC compe) && (length (rankingC compe) > 0) =
   auxPaisesGanadoresEnElDia competencias (auxMeterPais paises (nacionalidadA ((rankingC compe)!!0)))
                                                | otherwise = auxPaisesGanadoresEnElDia competencias paises
 
----------------------------------------------------------------------------------------------
----------------- Falta completar auxExistePatron --------------------------------------------
-auxExistePatron :: [Pais] -> Int -> Bool
-auxExistePatron x _ = True
-----------------------------------------------------------------------------------------------
+auxRecorreYCompara :: [Pais] -> Pais -> Pais -> Int -> Int -> Bool
+auxRecorreYCompara paises paisBuscado paisSiguiente 0 maximo | ((paises!!0) == paisBuscado) && ((paises!!1) == paisSiguiente) = True
+                                                             | otherwise = True
+auxRecorreYCompara paises paisBuscado paisSiguiente indice maximo | (indice < maximo) && ((paises!!indice) == paisBuscado) = 
+  ((paises!!(indice+1)) == paisSiguiente) && (auxRecorreYCompara paises paisBuscado paisSiguiente (indice-1) maximo)
+                                                                | (indice == maximo) && ((paises!!indice) == paisBuscado) = True &&
+                                                                (auxRecorreYCompara paises paisBuscado paisSiguiente (indice-1) maximo)
+                                                                | otherwise = (auxRecorreYCompara paises paisBuscado paisSiguiente (indice-1) maximo)
+auxExistePatron :: [Pais] -> Int -> Int -> Bool
+auxExistePatron [] _ _ = True
+auxExistePatron [x] _ _ = True
+auxExistePatron [x,y] _ _ = True
+auxExistePatron paises 0 maximo = auxRecorreYCompara paises (paises!!0) (paises!!1) maximo maximo
+auxExistePatron paises indice maximo | (indice == maximo) = True && (auxExistePatron paises (indice-1) maximo)
+                     | otherwise = (auxRecorreYCompara paises (paises!!indice) (paises!!(indice+1)) maximo maximo) && 
+                          (auxExistePatron paises (indice-1) maximo)
 
 uyOrdenadoAsiHayUnPatronJ :: JJOO -> Bool
 uyOrdenadoAsiHayUnPatronJ juegos = auxUyOrdenadoAsiHayUnPatronJ juegos []
 
 auxUyOrdenadoAsiHayUnPatronJ :: JJOO -> [Pais] -> Bool
-auxUyOrdenadoAsiHayUnPatronJ (J _ _ _) lista = (auxExistePatron lista (length lista))
+auxUyOrdenadoAsiHayUnPatronJ (J _ _ _) lista = (auxExistePatron lista ((length lista)-1) ((length lista)-1))
 auxUyOrdenadoAsiHayUnPatronJ (NuevoDia competencias juegos) paises | auxExisteAlgunoConRanking competencias = 
   auxUyOrdenadoAsiHayUnPatronJ juegos ((auxMejorPaisEnElDia (auxPaisesGanadoresEnElDia competencias []) (head(auxPaisesGanadoresEnElDia competencias []))):paises)
                                                                   | otherwise = auxUyOrdenadoAsiHayUnPatronJ juegos paises
