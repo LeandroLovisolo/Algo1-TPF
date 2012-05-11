@@ -243,6 +243,7 @@ auxSacarAtletasConPais (atle:atletas) pais
 -- Fin de boicotPorDisciplinaJ ------------------------------------------------
 -------------------------------------------------------------------------------
 
+
 -------------------------------------------------------------------------------
 -- losMasFracasadosJ-----------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -415,4 +416,61 @@ stevenBradburyJ j = buscarElMenosCapaz (tuplasMedallistasCapacidad j)
 -- Fin de stevenBradburyJ -----------------------------------------------------
 -------------------------------------------------------------------------------
 
+
+-------------------------------------------------------------------------------
+-- sequiaOlimpicaJ ------------------------------------------------------------
+-------------------------------------------------------------------------------
+
 sequiaOlimpicaJ           = undefined
+
+obtenerPaises [] = []
+obtenerPaises (x:xs) = (nacionalidadA x):sinRepetidos (obtenerPaises xs)
+
+ganoAlgunaMedalla p [] = False
+ganoAlgunaMedalla p (x:xs) = (salioEnPosicion p 1 x  ||
+                              salioEnPosicion p 2 x  ||
+                              salioEnPosicion p 3 x) || ganoAlgunaMedalla p xs
+
+salioEnPosicion pais pos c = length (rankingC c) >= pos &&
+                             nacionalidadA (rankingC c !! (pos - 1)) == pais
+
+-------------------------------------------------------------------------------
+-- Fin de sequiaOlimpicaJ -----------------------------------------------------
+-------------------------------------------------------------------------------
+
+
+
+
+
+
+
+dataJJOO :: JJOO
+dataJJOO = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 dataAtletas 2)))
+    where cronograma = [dia1, dia2, dia3]
+          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
+                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
+          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
+                  (competencia  "Arqueria"),
+                  (competencia  "Natacion")]
+          dia3 = [(competencia  "Gimnasia Artistica"),
+                  (competencia  "Hockey"),
+                  (competencia  "Rugby")]
+          competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
+          competencia  dep     = (nuevaC dep Masculino dataAtletas)
+
+dataAtletas :: [Atleta]
+dataAtletas = map entrenarDeportes atletas 
+  where atletas = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
+                   (nuevoA "Beto"     Masculino 19 "Brasil"    222),
+                   (nuevoA "Carlos"   Masculino 20 "Chile"     333),
+                   (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444),
+                   (nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
+                   (nuevoA "Federico" Masculino 23 "Francia"   666),
+                   (nuevoA "Gabriel"  Masculino 24 "Grecia"    777),
+                   (nuevoA "Horacio"  Masculino 25 "Honduras"  888),
+                   (nuevoA "Hector"   Masculino 26 "Honduras"  999)]
+        deportes = ["Futbol", "Handball", "Basket", "Volley", "Arqueria", "Natacion"]
+        entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
+        entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte (capacidad atleta)
+        capacidad atleta = ciaNumberA atleta
