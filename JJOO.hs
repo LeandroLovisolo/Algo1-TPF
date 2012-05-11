@@ -243,6 +243,7 @@ auxSacarAtletasConPais (atle:atletas) pais
 -- Fin de boicotPorDisciplinaJ ------------------------------------------------
 -------------------------------------------------------------------------------
 
+
 -------------------------------------------------------------------------------
 -- losMasFracasadosJ-----------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -425,4 +426,58 @@ stevenBradburyJ j = buscarElMenosCapaz (tuplasMedallistasCapacidad j)
 -- Fin de stevenBradburyJ -----------------------------------------------------
 -------------------------------------------------------------------------------
 
-sequiaOlimpicaJ           = undefined
+
+-------------------------------------------------------------------------------
+-- sequiaOlimpicaJ ------------------------------------------------------------
+-------------------------------------------------------------------------------
+
+sequiaOlimpicaJ j = buscarMasSecos (obtenerPaises (atletasJ j)) (obtenerPaises (atletasJ j))
+    where buscarMasSecos [] _ = []
+          buscarMasSecos [x] _ = [x]
+          buscarMasSecos (x:xs) paises
+              | esMasSeco x paises = x:(buscarMasSecos xs paises)
+              | otherwise          = buscarMasSecos xs paises
+          esMasSeco _ [] = True
+          esMasSeco w (x:xs) = (maxDiasSinGanar w j >= maxDiasSinGanar x j) &&
+                               (esMasSeco w xs)
+
+obtenerPaises [] = []
+obtenerPaises (x:xs) = (nacionalidadA x):sinRepetidos (obtenerPaises xs)
+
+maxDiasSinGanar p j = buscarMax (calcularDiferencias (jornadas p j))
+    where jornadas p j= 0 : (jornadasEnLasQueGano p j) ++ [jornadaActualJ j]
+
+calcularDiferencias [x,y] = [y - x]
+calcularDiferencias (x1:x2:xs) = (x2 - x1):(calcularDiferencias (x2:xs))
+
+buscarMax [x] = x
+buscarMax (x:xs)
+    | esMax x xs = x
+    | otherwise  = buscarMax xs
+    where esMax _ [] = True
+          esMax w (x:xs) = (w >= x) && (esMax w xs)
+
+jornadasEnLasQueGano p j = acumularJornadasEnLasQueGano p 1 j
+acumularJornadasEnLasQueGano p d j
+    | d > jornadaActualJ j     = []
+    | ganoMedallasEseDia p d j = d:(acumularJornadasEnLasQueGano p (d + 1) j)
+    | otherwise                =    acumularJornadasEnLasQueGano p (d + 1) j
+
+ganoMedallasEseDia p d j = ganoAlgunaMedalla p (filtrarFinalizadas (cronogramaJ j d))
+
+filtrarFinalizadas [] = []
+filtrarFinalizadas (x:xs)
+    | finalizadaC x = x:(filtrarFinalizadas xs)
+    | otherwise     = filtrarFinalizadas xs
+
+ganoAlgunaMedalla p [] = False
+ganoAlgunaMedalla p (x:xs) = (salioEnPosicion p 1 x  ||
+                              salioEnPosicion p 2 x  ||
+                              salioEnPosicion p 3 x) || ganoAlgunaMedalla p xs
+
+salioEnPosicion pais pos c = length (rankingC c) >= pos &&
+                             nacionalidadA (rankingC c !! (pos - 1)) == pais
+
+-------------------------------------------------------------------------------
+-- Fin de sequiaOlimpicaJ -----------------------------------------------------
+-------------------------------------------------------------------------------

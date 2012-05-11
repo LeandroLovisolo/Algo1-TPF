@@ -170,9 +170,10 @@ dataAtletas = map entrenarDeportes atletas
                    (nuevoA "Carlos"   Masculino 20 "Chile"     333),
                    (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444),
                    (nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
-                   (nuevoA "Federico" Masculino 22 "Francia"   666),
-                   (nuevoA "Gabriel"  Masculino 22 "Grecia"    777),
-                   (nuevoA "Horacio"  Masculino 22 "Honduras"  888)]
+                   (nuevoA "Federico" Masculino 23 "Francia"   666),
+                   (nuevoA "Gabriel"  Masculino 24 "Grecia"    777),
+                   (nuevoA "Horacio"  Masculino 25 "Honduras"  888),
+                   (nuevoA "Hector"   Masculino 26 "Honduras"  999)]
         deportes = ["Futbol", "Handball", "Basket", "Volley", "Arqueria", "Natacion"]
         entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
         entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte (capacidad atleta)
