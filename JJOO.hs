@@ -317,6 +317,13 @@ auxAtletasPais (x:xs) p
 -- liuSongJ -------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+liuSongJ :: JJOO -> Atleta -> Pais -> JJOO
+liuSongJ (J anio atletas jornadaActual) atletaACambiar pais =
+    (J anio (auxCambiaNacionalidadAtleta atletas atletaACambiar pais) jornadaActual)
+liuSongJ (NuevoDia competencias juegos) atletaACambiar pais = 
+    (NuevoDia (auxProcesaCompetencias competencias atletaACambiar pais)
+              (liuSongJ juegos atletaACambiar pais))
+
 auxEntrenarDeportes :: Atleta -> Atleta -> [Deporte] -> Atleta
 auxEntrenarDeportes atleta atletaOriginal [] = atleta
 auxEntrenarDeportes atleta atletaOriginal (deporte:deportes) = 
@@ -358,13 +365,6 @@ auxProcesaCompetencias [] _ _ = []
 auxProcesaCompetencias (compe:competencias) atletaACambiar pais = 
     (auxCambiaNacionalidadAtletaEnCompetencia compe atletaACambiar pais) :
     (auxProcesaCompetencias competencias atletaACambiar pais)
-
-liuSongJ :: JJOO -> Atleta -> Pais -> JJOO
-liuSongJ (J anio atletas jornadaActual) atletaACambiar pais =
-    (J anio (auxCambiaNacionalidadAtleta atletas atletaACambiar pais) jornadaActual)
-liuSongJ (NuevoDia competencias juegos) atletaACambiar pais = 
-    (NuevoDia (auxProcesaCompetencias competencias atletaACambiar pais)
-              (liuSongJ juegos atletaACambiar pais))
 
 -------------------------------------------------------------------------------
 -- Fin de liuSongJ ------------------------------------------------------------
