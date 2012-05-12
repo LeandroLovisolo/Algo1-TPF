@@ -66,6 +66,7 @@ sancionarTrampososC (Finalizar ranking dopping compe) =
     Finalizar (auxSinTramposos ranking dopping) dopping compe
 
 auxSinTramposos :: [Int] -> [(Int, Bool)] -> [Int]
+auxSinTramposos [] _ = []
 auxSinTramposos (rank:ranking) dopping
     | elem rank (auxCiaDoppingVerdadero dopping) = auxSinTramposos ranking dopping
     | otherwise                                  = rank : (auxSinTramposos ranking dopping)
