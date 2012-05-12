@@ -92,6 +92,15 @@ tests = TestList [
 
         "sancionarTrampososC : probando con un dopping vacio"~:
           [111, 222, 333, 444, 555, 666, 777, 888] @=? map ciaNumberA (rankingC (sancionarTrampososC dataCompetenciaSinDopping)),
+
+        "gananLosMasCapacesC : True si las capacidades de los atletas en el ranking son decrecientes"~:
+          True @=? gananLosMasCapacesC dataGananLosMasCapacesC,
+
+        "gananLosMasCapacesC : Devuelve falso por tener el ranking desordenado"~:
+          False @=? gananLosMasCapacesC dataGananLosMasCapacesCFalso,
+
+        "gananLosMasCapacesC : Devuelve True teniendo ranking vacio"~:
+          True @=? gananLosMasCapacesC dataGananLosMasCapacesCVacio,
         -------------------------------------------------------------------------------
         -- Módulo JJOO ----------------------------------------------------------------
         -------------------------------------------------------------------------------
@@ -210,6 +219,23 @@ dataCompetenciaSinDopping = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
                              [111, 222, 333, 444, 555, 666, 777, 888]
                              []
 
+dataGananLosMasCapacesC :: Competencia
+dataGananLosMasCapacesC = finalizarC (nuevaC "Futbol" Masculino atletas) [3,2,1] []
+    where atletas    = [dataAtleta "Juan" "Argentina" 1 [("Futbol", 10), ("Basket", 40), ("Handball", 50)],
+                        dataAtleta "Pepe" "Brasil"    2 [("Futbol", 20), ("Basket", 30), ("Handball", 60)],
+                        dataAtleta "Pepe" "Brasil"    3 [("Futbol", 60), ("Basket", 30), ("Handball", 60)]]
+
+dataGananLosMasCapacesCFalso :: Competencia
+dataGananLosMasCapacesCFalso = finalizarC (nuevaC "Futbol" Masculino atletas) [1,2,3] []
+    where atletas    = [dataAtleta "Juan" "Argentina" 1 [("Futbol", 10), ("Basket", 40), ("Handball", 50)],
+                        dataAtleta "Pepe" "Brasil"    2 [("Futbol", 20), ("Basket", 30), ("Handball", 60)],
+                        dataAtleta "Pepe" "Brasil"    3 [("Futbol", 60), ("Basket", 30), ("Handball", 60)]]
+
+dataGananLosMasCapacesCVacio :: Competencia
+dataGananLosMasCapacesCVacio = finalizarC (nuevaC "Futbol" Masculino atletas) [] []
+    where atletas    = [dataAtleta "Juan" "Argentina" 1 [("Futbol", 10), ("Basket", 40), ("Handball", 50)],
+                        dataAtleta "Pepe" "Brasil"    2 [("Futbol", 20), ("Basket", 30), ("Handball", 60)],
+                        dataAtleta "Pepe" "Brasil"    3 [("Futbol", 60), ("Basket", 30), ("Handball", 60)]]
 dataDePaseoJ :: JJOO
 dataDePaseoJ = nuevoJ 2012 atletas cronograma
     where atletas = atletasActivos ++ atletasDePaseo
