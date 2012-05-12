@@ -96,11 +96,11 @@ tests = TestList [
                 map ciaNumberA (rankingC ((cronogramaJ (transcurrirDiaJ dataTranscurrirDiaJ) 2) !! 0)),
 
         "transcurrirDiaJ: ranking Arqueria correcto" ~:
-            [888, 777, 666, 555, 444, 333, 222, 111] @=?
+            [999, 888, 777, 666, 555, 444, 333, 222, 111] @=?
                 map ciaNumberA (rankingC ((cronogramaJ (transcurrirDiaJ dataTranscurrirDiaJ) 2) !! 1)),
 
         "transcurrirDiaJ: ranking Natacion correcto" ~:
-            [888, 777, 666, 555, 444, 333, 222, 111] @=?
+            [999, 888, 777, 666, 555, 444, 333, 222, 111] @=?
                 map ciaNumberA (rankingC ((cronogramaJ (transcurrirDiaJ dataTranscurrirDiaJ) 2) !! 2)),
 
         "transcurrirDiaJ: control antidoping a un atleta de cada competencia no finalizada" ~:
@@ -127,13 +127,15 @@ dataCompetencia = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
                              [(222, False), (444, True)]
 
 dataDePaseoJ :: JJOO
-dataDePaseoJ = NuevoDia dia2 (NuevoDia dia1 (J 2012 (atletasActivos ++ atletasDePaseo) 1))
-    where atletasActivos = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
+dataDePaseoJ = nuevoJ 2012 atletas cronograma
+    where atletas = atletasActivos ++ atletasDePaseo
+          atletasActivos = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
                             (nuevoA "Beto"     Masculino 19 "Brasil"    222),
                             (nuevoA "Carlos"   Masculino 20 "Chile"     333),
                             (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444)]
           atletasDePaseo = [(nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
                             (nuevoA "Federico" Masculino 22 "Francia"   666)]
+          cronograma = [dia1, dia2]
           dia1 = [(competencia "Futbol"),
                   (competencia "Handball"),
                   (competencia "Basket")]
@@ -146,8 +148,8 @@ dataMedalleroJ :: JJOO
 dataMedalleroJ = dataTranscurrirDiaJ
 
 dataTranscurrirDiaJ :: JJOO
-dataTranscurrirDiaJ = NuevoDia dia3 (NuevoDia dia2 (NuevoDia dia1 (J 2012 dataAtletas 2)))
-    where cronograma = [dia1, dia2, dia3, dia4]
+dataTranscurrirDiaJ = transcurrirDiaJ (nuevoJ 2012 dataAtletas cronograma)
+    where cronograma = [dia1, dia2, dia3]
           dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
                   (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
                   (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
