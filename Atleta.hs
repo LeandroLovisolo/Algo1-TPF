@@ -58,8 +58,5 @@ entrenarDeporteA (A nombre sexo anio pais cia deportes) depPorAgregar capPorAgre
 		(A nombre sexo anio pais cia (auxModificaCapacidad deportes depPorAgregar capPorAgregar) )
 	| otherwise = (A nombre sexo anio pais cia (auxAgregarDeporte deportes depPorAgregar capPorAgregar))
 
-atleta :: String->Sexo->Int->Pais->Int->[(Deporte, Int)]-> Atleta
-atleta a b c d e f = A a b c d e f
-
 instance Show Atleta where
 	show (A nombre sexo edad pais ciaNumber capacidades) = nombre ++ " (#" ++ show ciaNumber ++ ")"
