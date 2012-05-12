@@ -15,7 +15,7 @@ data JJOO = J Int [Atleta] Int
 
 nuevoJ :: Int -> [Atleta] -> [[Competencia]] -> JJOO
 nuevoJ anio atletas [] = (J anio atletas 1)
-nuevoJ anio atletas (x:xs) = NuevoDia x (nuevoJ anio atletas xs)
+nuevoJ anio atletas xs = NuevoDia (last xs) (nuevoJ anio atletas (init xs))
 
 anioJ :: JJOO -> Int
 anioJ (J anio _ _) = anio
