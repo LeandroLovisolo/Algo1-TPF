@@ -206,15 +206,19 @@ auxCrearDopping c
 boicotPorDisciplinaJ :: JJOO -> (Deporte, Sexo) -> Pais -> JJOO
 boicotPorDisciplinaJ (J anio atletas jornadaActual) _ _ = (J anio atletas jornadaActual)
 boicotPorDisciplinaJ (NuevoDia competencias juegos) cate pais = 
-    (NuevoDia (auxCompetenciasSinAtletasConPaisYCat competencias pais cate) (boicotPorDisciplinaJ juegos cate pais))
+    (NuevoDia (auxCompetenciasSinAtletasConPaisYCat competencias pais cate)
+              (boicotPorDisciplinaJ juegos cate pais))
 
 auxRankingSinAtletasConPais :: [Atleta] -> Pais -> [Int]
-auxRankingSinAtletasConPais (atle:atletas) pais | (nacionalidadA atle) == pais = auxRankingSinAtletasConPais atletas pais
-                                                | otherwise = (ciaNumberA atle) : (auxRankingSinAtletasConPais atletas pais)
+auxRankingSinAtletasConPais (atle:atletas) pais
+    | (nacionalidadA atle) == pais = auxRankingSinAtletasConPais atletas pais
+    | otherwise                    = (ciaNumberA atle) : (auxRankingSinAtletasConPais atletas pais)
 
 auxDoppingSinAtletasConPais :: [Atleta] -> Pais -> Competencia -> [(Int, Bool)]
-auxDoppingSinAtletasConPais (atle:atletas) pais compe | (nacionalidadA atle) == pais = auxDoppingSinAtletasConPais atletas pais compe
-                                          | otherwise = (ciaNumberA atle,leDioPositivoC compe atle) : (auxDoppingSinAtletasConPais atletas pais compe)
+auxDoppingSinAtletasConPais (atle:atletas) pais compe
+    | (nacionalidadA atle) == pais = auxDoppingSinAtletasConPais atletas pais compe
+    | otherwise                    = (ciaNumberA atle, leDioPositivoC compe atle) :
+                                     (auxDoppingSinAtletasConPais atletas pais compe)
 
 auxCompetenciasSinAtletasConPaisYCat :: [Competencia] -> Pais -> Categoria -> [Competencia]
 auxCompetenciasSinAtletasConPaisYCat [] _ _ = []
@@ -222,15 +226,16 @@ auxCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat
     | (categoriaC compe == cat) && (not (finalizadaC compe)) =
         (nuevaC (fst(categoriaC compe))
                 (snd(categoriaC compe))
-                (auxSacarAtletasConPais (participantesC compe) pais))
-            : (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
+                (auxSacarAtletasConPais (participantesC compe) pais)) :
+        (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
     | (categoriaC compe == cat) && (finalizadaC compe) = 
-                (finalizarC (nuevaC (fst(categoriaC compe)) (snd(categoriaC compe)) 
-                  (auxSacarAtletasConPais (participantesC compe) pais))
-                (auxRankingSinAtletasConPais (rankingC compe) pais) 
-                (auxDoppingSinAtletasConPais (lesTocoControlAntiDopingC compe) pais compe)
-                )
-            : (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
+                (finalizarC (nuevaC (fst(categoriaC compe))
+                                    (snd(categoriaC compe)) 
+                            (auxSacarAtletasConPais (participantesC compe) pais))
+                            (auxRankingSinAtletasConPais (rankingC compe) pais) 
+                            (auxDoppingSinAtletasConPais (lesTocoControlAntiDopingC compe)
+                                                         pais compe)) :
+                (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
     | otherwise = compe : (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
 
 auxSacarAtletasConPais :: [Atleta] -> Pais -> [Atleta]
@@ -250,28 +255,36 @@ auxSacarAtletasConPais (atle:atletas) pais
 
 losMasFracasadosJ :: JJOO->Pais->[Atleta]
 losMasFracasadosJ (J _ atletas _) p = atletas
-losMasFracasadosJ (NuevoDia competencias juegos) pais = auxPerdedores (NuevoDia competencias juegos) (auxordenAtletas (NuevoDia competencias juegos) (auxAtletasPais (atletasJ juegos) pais))
+losMasFracasadosJ (NuevoDia competencias juegos) pais =
+    auxPerdedores (NuevoDia competencias juegos)
+                  (auxordenAtletas (NuevoDia competencias juegos)
+                                   (auxAtletasPais (atletasJ juegos) pais))
 
 auxPerdedores :: JJOO->[Atleta]->[Atleta]
 auxPerdedores juegos [] = []
-auxPerdedores juegos (a:as) | not(ganoMedalla (competenciasFinalizadas juegos) a) = a : auxPerdedores juegos as
-              | otherwise = auxPerdedores juegos as
-              where ganoMedalla c a= (ganoOro c a || ganoPlata c a || ganoBronce c a)
-                    ganoOro [] a = False
-                    ganoOro (comp:competencia) a | ciaNumberA ((rankingC comp)!!0) == ciaNumberA a = True
-                                                 | otherwise                                       = ganoOro competencia a
-                    ganoPlata [] a = False
-                    ganoPlata (comp:competencia) a | ciaNumberA ((rankingC comp)!!1) == ciaNumberA a = True
-                                                   | otherwise                                       = ganoPlata competencia a
-                    ganoBronce [] a = False
-                    ganoBronce (comp:competencia) a | ciaNumberA ((rankingC comp)!!2) == ciaNumberA a = True
-                                                    | otherwise = ganoBronce competencia a
+auxPerdedores juegos (a:as)
+    | not(ganoMedalla (competenciasFinalizadas juegos) a) = a : auxPerdedores juegos as
+    | otherwise = auxPerdedores juegos as
+        where ganoMedalla c a = (ganoOro c a || ganoPlata c a || ganoBronce c a)
+              ganoOro [] a = False
+              ganoOro (comp:competencia) a
+                | ciaNumberA ((rankingC comp) !! 0) == ciaNumberA a = True
+                | otherwise                                         = ganoOro competencia a
+              ganoPlata [] a = False
+              ganoPlata (comp:competencia) a
+                | ciaNumberA ((rankingC comp) !! 1) == ciaNumberA a = True
+                | otherwise                                         = ganoPlata competencia a
+              ganoBronce [] a = False
+              ganoBronce (comp:competencia) a
+                | ciaNumberA ((rankingC comp)!!2) == ciaNumberA a = True
+                | otherwise                                       = ganoBronce competencia a
 
 auxordenAtletas :: JJOO->[Atleta]-> [Atleta]
 auxordenAtletas juegos [] = []
 auxordenAtletas juegos [x] = [x]
-auxordenAtletas juegos (x:y:xs) | cantCompetencias juegos x  >= cantCompetencias juegos y = x: auxordenAtletas juegos (y:xs)
-                | cantCompetencias juegos x < cantCompetencias juegos y = y: auxordenAtletas juegos (x:xs)
+auxordenAtletas juegos (x:y:xs)
+    | cantCompetencias juegos x  >= cantCompetencias juegos y = x : auxordenAtletas juegos (y:xs)
+    | cantCompetencias juegos x < cantCompetencias juegos y   = y : auxordenAtletas juegos (x:xs)
 
 cantCompetencias :: JJOO->Atleta->Int
 cantCompetencias (J _ _ _) _ = 0
@@ -279,17 +292,21 @@ cantCompetencias juegos atleta = auxCompe (competenciasFinalizadas juegos) atlet
 
 auxCompe :: [Competencia] -> Atleta -> Int
 auxCompe [] _ = 0
-auxCompe (compe:competencias) atleta | auxPertenece (participantesC compe) atleta = 1 + auxCompe competencias atleta
-                   | otherwise = auxCompe competencias atleta
+auxCompe (compe:competencias) atleta
+    | auxPertenece (participantesC compe) atleta = 1 + auxCompe competencias atleta
+    | otherwise                                  = auxCompe competencias atleta
+
 auxPertenece :: [Atleta]->Atleta->Bool
 auxPertenece [] a = False
-auxPertenece (atleta:atletas) a | ciaNumberA a == ciaNumberA atleta = True
-                | otherwise = auxPertenece atletas a  
+auxPertenece (atleta:atletas) a
+    | ciaNumberA a == ciaNumberA atleta = True
+    | otherwise                         = auxPertenece atletas a  
 
 auxAtletasPais :: [Atleta]->Pais->[Atleta]
 auxAtletasPais [] _ = []
-auxAtletasPais (x:xs) p | nacionalidadA x == p = x : auxAtletasPais xs p
-            | otherwise = auxAtletasPais xs p
+auxAtletasPais (x:xs) p
+    | nacionalidadA x == p = x : auxAtletasPais xs p
+    | otherwise            = auxAtletasPais xs p
 
 -------------------------------------------------------------------------------
 -- Fin de losMasFracasadosJ ---------------------------------------------------
@@ -303,41 +320,51 @@ auxAtletasPais (x:xs) p | nacionalidadA x == p = x : auxAtletasPais xs p
 auxEntrenarDeportes :: Atleta -> Atleta -> [Deporte] -> Atleta
 auxEntrenarDeportes atleta atletaOriginal [] = atleta
 auxEntrenarDeportes atleta atletaOriginal (deporte:deportes) = 
-  auxEntrenarDeportes (entrenarDeporteA atleta deporte (capacidadA atletaOriginal deporte)) atletaOriginal deportes
+  auxEntrenarDeportes (entrenarDeporteA atleta deporte (capacidadA atletaOriginal deporte))
+                      atletaOriginal deportes
 
 auxCambiaNacionalidadAtleta :: [Atleta] -> Atleta -> Pais -> [Atleta]
 auxCambiaNacionalidadAtleta [] _ _ = []
-auxCambiaNacionalidadAtleta (atle:atletas) atleACambiar pais | (ciaNumberA atle) == (ciaNumberA atleACambiar) = 
-    (auxEntrenarDeportes (nuevoA (nombreA atle) (sexoA atle) (anioNacimientoA atle) pais (ciaNumberA atle)) atle (deportesA atle)) :
-    (auxCambiaNacionalidadAtleta atletas atleACambiar pais)
-                                                             | otherwise = atle : (auxCambiaNacionalidadAtleta atletas atleACambiar pais)
+auxCambiaNacionalidadAtleta (atle:atletas) atleACambiar pais
+    | (ciaNumberA atle) == (ciaNumberA atleACambiar) =
+        (auxEntrenarDeportes (nuevoA (nombreA atle) (sexoA atle) (anioNacimientoA atle)
+                                     pais (ciaNumberA atle))
+                             atle (deportesA atle)) :
+        (auxCambiaNacionalidadAtleta atletas atleACambiar pais)
+    | otherwise = atle : (auxCambiaNacionalidadAtleta atletas atleACambiar pais)
 
 auxAtletasACias :: [Atleta] -> [Int]
 auxAtletasACias (atle:atletas) = (ciaNumberA atle) : (auxAtletasACias atletas)
 
 auxRecrearDopping :: Competencia -> [Atleta] -> [(Int,Bool)]
 auxRecrearDopping _ [] = []
-auxRecrearDopping compe (atle:atletas) = (ciaNumberA atle, leDioPositivoC compe atle) : (auxRecrearDopping compe atletas)
+auxRecrearDopping compe (atle:atletas) =
+    (ciaNumberA atle, leDioPositivoC compe atle) : (auxRecrearDopping compe atletas)
 
 auxCambiaNacionalidadAtletaEnCompetencia :: Competencia -> Atleta -> Pais -> Competencia
-auxCambiaNacionalidadAtletaEnCompetencia compe atletaACambiar pais | finalizadaC compe = 
-  finalizarC (nuevaC (fst(categoriaC compe)) 
-                (snd(categoriaC compe)) 
-                (auxCambiaNacionalidadAtleta (participantesC compe) atletaACambiar pais)) 
-              (auxAtletasACias (rankingC compe)) (auxRecrearDopping compe (lesTocoControlAntiDopingC compe))
-               | otherwise = nuevaC (fst(categoriaC compe)) 
-                                        (snd(categoriaC compe)) 
-                                        (auxCambiaNacionalidadAtleta (participantesC compe) atletaACambiar pais)
+auxCambiaNacionalidadAtletaEnCompetencia compe atletaACambiar pais
+    | finalizadaC compe = finalizarC (nuevaC (fst (categoriaC compe))
+                                             (snd (categoriaC compe))
+                                             (auxCambiaNacionalidadAtleta (participantesC compe)
+                                                                          atletaACambiar pais))
+                                     (auxAtletasACias (rankingC compe))
+                                     (auxRecrearDopping compe (lesTocoControlAntiDopingC compe))
+    | otherwise = nuevaC (fst (categoriaC compe))
+                         (snd (categoriaC compe)) 
+                         (auxCambiaNacionalidadAtleta (participantesC compe) atletaACambiar pais)
 
 auxProcesaCompetencias :: [Competencia] -> Atleta -> Pais -> [Competencia]
 auxProcesaCompetencias [] _ _ = []
 auxProcesaCompetencias (compe:competencias) atletaACambiar pais = 
-  (auxCambiaNacionalidadAtletaEnCompetencia compe atletaACambiar pais) : auxProcesaCompetencias competencias atletaACambiar pais
+    (auxCambiaNacionalidadAtletaEnCompetencia compe atletaACambiar pais) :
+    (auxProcesaCompetencias competencias atletaACambiar pais)
 
 liuSongJ :: JJOO -> Atleta -> Pais -> JJOO
-liuSongJ (J anio atletas jornadaActual) atletaACambiar pais = (J anio (auxCambiaNacionalidadAtleta atletas atletaACambiar pais) jornadaActual)
+liuSongJ (J anio atletas jornadaActual) atletaACambiar pais =
+    (J anio (auxCambiaNacionalidadAtleta atletas atletaACambiar pais) jornadaActual)
 liuSongJ (NuevoDia competencias juegos) atletaACambiar pais = 
-  (NuevoDia (auxProcesaCompetencias competencias atletaACambiar pais) (liuSongJ juegos atletaACambiar pais))
+    (NuevoDia (auxProcesaCompetencias competencias atletaACambiar pais)
+              (liuSongJ juegos atletaACambiar pais))
 
 -------------------------------------------------------------------------------
 -- Fin de liuSongJ ------------------------------------------------------------
@@ -348,54 +375,73 @@ liuSongJ (NuevoDia competencias juegos) atletaACambiar pais =
 -- uyOrdenadoAsiHayUnPatronJ --------------------------------------------------
 -------------------------------------------------------------------------------
 
+uyOrdenadoAsiHayUnPatronJ :: JJOO -> Bool
+uyOrdenadoAsiHayUnPatronJ juegos = auxUyOrdenadoAsiHayUnPatronJ juegos []
+
+auxUyOrdenadoAsiHayUnPatronJ :: JJOO -> [Pais] -> Bool
+auxUyOrdenadoAsiHayUnPatronJ (J _ _ _) lista = (auxExistePatron lista ((length lista) - 1)
+                                                                      ((length lista) - 1))
+auxUyOrdenadoAsiHayUnPatronJ (NuevoDia competencias juegos) paises
+    | auxExisteAlgunoConRanking competencias =
+        auxUyOrdenadoAsiHayUnPatronJ juegos
+                                     ((auxMejorPaisEnElDia (auxPaisesGanadoresEnElDia competencias [])
+                                      (head(auxPaisesGanadoresEnElDia competencias []))):paises)
+    | otherwise = auxUyOrdenadoAsiHayUnPatronJ juegos paises
+
 auxExisteAlgunoConRanking :: [Competencia] -> Bool
 auxExisteAlgunoConRanking [] = False
-auxExisteAlgunoConRanking (compe:competencias) | (finalizadaC compe) = ((length (rankingC compe)) > 0)
-                                              | otherwise = auxExisteAlgunoConRanking competencias
+auxExisteAlgunoConRanking (compe:competencias)
+    | (finalizadaC compe) = ((length (rankingC compe)) > 0)
+    | otherwise           = auxExisteAlgunoConRanking competencias
 
 auxMejorPaisEnElDia :: [(Pais, Int)] -> (Pais, Int) -> Pais
 auxMejorPaisEnElDia [] pais = (fst pais)
 auxMejorPaisEnElDia (pais:paises) paisMax 
-                | ((snd paisMax) > (snd pais)) || (((snd paisMax) > (snd pais)) && ((fst paisMax) > (fst pais))) = 
-                    auxMejorPaisEnElDia paises paisMax
-                | otherwise = auxMejorPaisEnElDia paises pais
+    |  ((snd paisMax) > (snd pais)) ||
+      (((snd paisMax) > (snd pais)) &&
+       ((fst paisMax) > (fst pais))) = auxMejorPaisEnElDia paises paisMax
+    | otherwise                      = auxMejorPaisEnElDia paises pais
 
 auxMeterPais :: [(Pais, Int)] -> Pais -> [(Pais, Int)]
 auxMeterPais [] pais = [(pais,1)]
-auxMeterPais (pais:paises) paisAMeter | ((fst pais) == paisAMeter) = (fst pais, (snd(pais)+1)) : paises
-                    | otherwise = pais : (auxMeterPais paises paisAMeter)
+auxMeterPais (pais:paises) paisAMeter
+    | ((fst pais) == paisAMeter) = (fst pais, (snd(pais)+1)) : paises
+    | otherwise                  = pais : (auxMeterPais paises paisAMeter)
 
 auxPaisesGanadoresEnElDia :: [Competencia] -> [(Pais, Int)] -> [(Pais, Int)]
 auxPaisesGanadoresEnElDia [] paises = paises
-auxPaisesGanadoresEnElDia (compe:competencias) paises | (finalizadaC compe) && (length (rankingC compe) > 0) =
-  auxPaisesGanadoresEnElDia competencias (auxMeterPais paises (nacionalidadA ((rankingC compe)!!0)))
-                                               | otherwise = auxPaisesGanadoresEnElDia competencias paises
+auxPaisesGanadoresEnElDia (compe:competencias) paises
+    | (finalizadaC compe) && (length (rankingC compe) > 0) =
+            auxPaisesGanadoresEnElDia competencias
+                                      (auxMeterPais paises (nacionalidadA ((rankingC compe) !! 0)))
+    | otherwise = auxPaisesGanadoresEnElDia competencias paises
 
 auxRecorreYCompara :: [Pais] -> Pais -> Pais -> Int -> Int -> Bool
-auxRecorreYCompara paises paisBuscado paisSiguiente 0 maximo | ((paises!!0) == paisBuscado) && ((paises!!1) == paisSiguiente) = True
-                                                             | otherwise = True
-auxRecorreYCompara paises paisBuscado paisSiguiente indice maximo | (indice < maximo) && ((paises!!indice) == paisBuscado) = 
-  ((paises!!(indice+1)) == paisSiguiente) && (auxRecorreYCompara paises paisBuscado paisSiguiente (indice-1) maximo)
-                                                                | (indice == maximo) && ((paises!!indice) == paisBuscado) = True &&
-                                                                (auxRecorreYCompara paises paisBuscado paisSiguiente (indice-1) maximo)
-                                                                | otherwise = (auxRecorreYCompara paises paisBuscado paisSiguiente (indice-1) maximo)
+auxRecorreYCompara paises paisBuscado paisSiguiente 0 maximo
+    | ((paises!!0) == paisBuscado) && ((paises!!1) == paisSiguiente) = True
+    | otherwise                                                      = True
+
+auxRecorreYCompara paises paisBuscado paisSiguiente indice maximo
+    |  (indice < maximo) &&
+      ((paises!!indice) == paisBuscado) = ((paises!!(indice+1)) == paisSiguiente) &&
+                                           (auxRecorreYCompara paises paisBuscado
+                                                               paisSiguiente (indice-1) maximo)
+    |  (indice == maximo) &&
+      ((paises!!indice) == paisBuscado) = True && (auxRecorreYCompara paises paisBuscado
+                                                                      paisSiguiente (indice-1) maximo)
+    | otherwise = (auxRecorreYCompara paises paisBuscado paisSiguiente (indice-1) maximo)
+
 auxExistePatron :: [Pais] -> Int -> Int -> Bool
 auxExistePatron [] _ _ = True
 auxExistePatron [x] _ _ = True
 auxExistePatron [x,y] _ _ = True
 auxExistePatron paises 0 maximo = auxRecorreYCompara paises (paises!!0) (paises!!1) maximo maximo
-auxExistePatron paises indice maximo | (indice == maximo) = True && (auxExistePatron paises (indice-1) maximo)
-                     | otherwise = (auxRecorreYCompara paises (paises!!indice) (paises!!(indice+1)) maximo maximo) && 
-                          (auxExistePatron paises (indice-1) maximo)
-
-uyOrdenadoAsiHayUnPatronJ :: JJOO -> Bool
-uyOrdenadoAsiHayUnPatronJ juegos = auxUyOrdenadoAsiHayUnPatronJ juegos []
-
-auxUyOrdenadoAsiHayUnPatronJ :: JJOO -> [Pais] -> Bool
-auxUyOrdenadoAsiHayUnPatronJ (J _ _ _) lista = (auxExistePatron lista ((length lista)-1) ((length lista)-1))
-auxUyOrdenadoAsiHayUnPatronJ (NuevoDia competencias juegos) paises | auxExisteAlgunoConRanking competencias = 
-  auxUyOrdenadoAsiHayUnPatronJ juegos ((auxMejorPaisEnElDia (auxPaisesGanadoresEnElDia competencias []) (head(auxPaisesGanadoresEnElDia competencias []))):paises)
-                                                                  | otherwise = auxUyOrdenadoAsiHayUnPatronJ juegos paises
+auxExistePatron paises indice maximo
+    | (indice == maximo) = True && (auxExistePatron paises (indice-1) maximo)
+    | otherwise          = (auxRecorreYCompara paises (paises !! indice)
+                                              (paises !! (indice + 1))
+                                               maximo maximo) && 
+                           (auxExistePatron paises (indice-1) maximo)
 
 -------------------------------------------------------------------------------
 -- Fin de uyOrdenadoAsiHayUnPatronJ -------------------------------------------
@@ -430,6 +476,7 @@ stevenBradburyJ j = buscarElMenosCapaz (tuplasMedallistasCapacidad j)
 -------------------------------------------------------------------------------
 -- sequiaOlimpicaJ ------------------------------------------------------------
 -------------------------------------------------------------------------------
+
 sequiaOlimpicaJ :: JJOO -> [Pais]
 sequiaOlimpicaJ j = buscarMasSecos (obtenerPaises (atletasJ j)) (obtenerPaises (atletasJ j))
     where buscarMasSecos [] _ = []
