@@ -68,9 +68,13 @@ tests = TestList [
         -------------------------------------------------------------------------------
         -- Módulo Atleta --------------------------------------------------------------
         -------------------------------------------------------------------------------
-        "entrenarDeporteA : agrega varios deportes y verifica orden" ~:
-         True @=? deportesEnOrden (deportesA (entrenarDeportes (nuevoA "Pepe" Masculino 18 "Arg" 133) dataEntrenarDeporteA)),
+        
 
+        "entrenarDeporteA : agrega varios deportes y verifica orden" ~:
+            True @=? deportesEnOrden (deportesA (entrenarDeportes (nuevoA "Pepe" Masculino 18 "Arg" 133)
+                                                                  dataEntrenarDeporteA)),
+
+        
         -------------------------------------------------------------------------------
         -- Módulo Competencia ---------------------------------------------------------
         -------------------------------------------------------------------------------
@@ -246,7 +250,7 @@ dataUyOrdenadoAsiHayUnPatronJ = (nuevoJ 2012 dataAtletas cronograma)
           dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
                   (competencia  "Arqueria"),
                   (competencia  "Natacion")]
-          dia3 = [(competenciaF  "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
+          dia3 = [(competenciaF "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
                   (competencia  "Hockey"),
                   (competencia  "Rugby")]
           dia4 = [(competenciaF "Snowboard" [555, 222, 444, 111, 666, 888, 777, 333]),
@@ -283,7 +287,7 @@ dataBoicotPorDisciplinaJ = (nuevoJ 2012 dataAtletas cronograma)
           dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
                   (competencia  "Arqueria"),
                   (competencia  "Natacion")]
-          dia3 = [(competenciaF  "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
+          dia3 = [(competenciaF "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
                   (competencia  "Hockey"),
                   (competencia  "Rugby")]
           dia4 = [(competenciaF "Snowboard" [111, 555, 333, 444, 888, 222, 666, 777]),
