@@ -89,6 +89,9 @@ tests = TestList [
 
         "sancionarTrampososC : saca del ranking a los que le dio positivo en el anti-dopping"~:
           [111, 222, 333, 555, 666, 777, 888] @=? map ciaNumberA (rankingC (sancionarTrampososC dataCompetencia)),
+
+        "sancionarTrampososC : probando con un dopping vacio"~:
+          [111, 222, 333, 444, 555, 666, 777, 888] @=? map ciaNumberA (rankingC (sancionarTrampososC dataCompetenciaSinDopping)),
         -------------------------------------------------------------------------------
         -- Módulo JJOO ----------------------------------------------------------------
         -------------------------------------------------------------------------------
@@ -201,6 +204,11 @@ dataCompetencia :: Competencia
 dataCompetencia = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
                              [111, 222, 333, 444, 555, 666, 777, 888]
                              [(222, False), (444, True)]
+
+dataCompetenciaSinDopping :: Competencia
+dataCompetenciaSinDopping = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
+                             [111, 222, 333, 444, 555, 666, 777, 888]
+                             []
 
 dataDePaseoJ :: JJOO
 dataDePaseoJ = nuevoJ 2012 atletas cronograma
