@@ -85,7 +85,7 @@ gananLosMasCapacesC (Finalizar (frank:srank:ranking) dopping compe) =
                 (fst (categoriaC compe))) >=
     (capacidadA (auxAtletaConCia srank (participantesC compe))
                 (fst (categoriaC compe))) &&
-    gananLosMasCapacesC (Finalizar ranking dopping compe)
+    gananLosMasCapacesC (Finalizar (srank:ranking) dopping compe)
 
 auxAtletaConCia :: Int -> [Atleta] -> Atleta
 auxAtletaConCia cia (atle:atletas) | (ciaNumberA atle) == cia = atle
