@@ -66,6 +66,8 @@ sancionarTrampososC (Finalizar ranking dopping compe) =
     Finalizar (auxSinTramposos ranking dopping) dopping compe
 
 auxSinTramposos :: [Int] -> [(Int, Bool)] -> [Int]
+auxSinTramposos ranking [] = ranking
+auxSinTramposos [] _ = []
 auxSinTramposos (rank:ranking) dopping
     | elem rank (auxCiaDoppingVerdadero dopping) = auxSinTramposos ranking dopping
     | otherwise                                  = rank : (auxSinTramposos ranking dopping)
@@ -83,7 +85,7 @@ gananLosMasCapacesC (Finalizar (frank:srank:ranking) dopping compe) =
                 (fst (categoriaC compe))) >=
     (capacidadA (auxAtletaConCia srank (participantesC compe))
                 (fst (categoriaC compe))) &&
-    gananLosMasCapacesC (Finalizar ranking dopping compe)
+    gananLosMasCapacesC (Finalizar (srank:ranking) dopping compe)
 
 auxAtletaConCia :: Int -> [Atleta] -> Atleta
 auxAtletaConCia cia (atle:atletas) | (ciaNumberA atle) == cia = atle

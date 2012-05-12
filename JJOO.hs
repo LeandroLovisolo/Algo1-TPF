@@ -45,20 +45,20 @@ jornadaActualJ (NuevoDia _ juegos) = jornadaActualJ juegos
 -------------------------------------------------------------------------------
 
 dePaseoJ :: JJOO -> [Atleta]
-dePaseoJ j = buscar j (atletasJ j)
-    where buscar (J _ _ _) dePaseo           = dePaseo
-          buscar (NuevoDia (x:xs) j) dePaseo = buscar (NuevoDia xs j)
-                                                      (filtrar dePaseo (participantesC x))
-          buscar (NuevoDia [] j) dePaseo     = buscar j dePaseo
-          filtrar [] _                       = []
-          filtrar (x:xs) indeseados
-            | pertenece x indeseados         = filtrar xs indeseados
-            | otherwise                      = x:(filtrar xs indeseados)
-          pertenece a []                     = False
-          pertenece a (x:xs)                 
-            | ciaNumberA a == ciaNumberA x   = True
-            | otherwise                      = pertenece a xs          
+dePaseoJ (J _ atletas _) = atletas
+dePaseoJ (NuevoDia [] juegos) = dePaseoJ juegos
+dePaseoJ (NuevoDia (compe:competencias) juegos) = dePaseoJ (juegoSinAtletas (NuevoDia competencias juegos) (participantesC compe)) 
 
+juegoSinAtletas :: JJOO -> [Atleta] -> JJOO
+juegoSinAtletas (J anio atletas jornada) atletasARemover = (J anio (removerAtletas atletas atletasARemover) jornada)
+juegoSinAtletas (NuevoDia competencias juegos) atletasARemover = (NuevoDia competencias (juegoSinAtletas juegos atletasARemover))
+
+removerAtletas :: [Atleta] -> [Atleta] -> [Atleta]
+removerAtletas atletas [] = atletas 
+removerAtletas [] _ = []
+removerAtletas (atle:atletas) atletasARemover | elem (ciaNumberA atle) (auxAtletasACias atletasARemover) = 
+                                                removerAtletas atletas atletasARemover
+                                              | otherwise = atle : (removerAtletas atletas atletasARemover)
 -------------------------------------------------------------------------------
 -- Fin de dePaseoJ ------------------------------------------------------------
 -------------------------------------------------------------------------------    
@@ -333,6 +333,7 @@ auxCambiaNacionalidadAtleta (atle:atletas) atleACambiar pais
     | otherwise = atle : (auxCambiaNacionalidadAtleta atletas atleACambiar pais)
 
 auxAtletasACias :: [Atleta] -> [Int]
+auxAtletasACias [] = []
 auxAtletasACias (atle:atletas) = (ciaNumberA atle) : (auxAtletasACias atletas)
 
 auxRecrearDopping :: Competencia -> [Atleta] -> [(Int,Bool)]
