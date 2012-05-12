@@ -91,6 +91,8 @@ tests = TestList [
         "dePaseoJ: devuelve los atletas correctos" ~:
             [555, 666] @=? map ciaNumberA (dePaseoJ dataDePaseoJ),
 
+        -- transcurrirDiaJ ------------------------------------------------------------
+
         "transcurrirDiaJ: jornada actual correcta" ~:
             3 @=? jornadaActualJ (transcurrirDiaJ dataTranscurrirDiaJ),
 
@@ -120,12 +122,16 @@ tests = TestList [
             [0,1,1] @=? map (\c -> length (lesTocoControlAntiDopingC c))
                             (cronogramaJ (transcurrirDiaJ dataTranscurrirDiaJ) 2),
 
+        -- medalleroJ -----------------------------------------------------------------
+
         "medalleroJ: devuelve los valores correctos" ~:
             [("Argentina", [2, 1, 0]),
              ("Ecuador",   [1, 1, 0]),
              ("Chile",     [1, 0, 2]),
              ("Brasil",    [0, 2, 1]),
              ("Dinamarca", [0, 0, 1])] @=? medalleroJ dataMedalleroJ,
+
+        -- stevenBradburyJ ------------------------------------------------------------
 
         "stevenBradburyJ: una sola competencia" ~:
             "Abel" @=? nombreA (stevenBradburyJ dataStevenBradburyJ),
@@ -136,6 +142,7 @@ tests = TestList [
         "stevenBradburyJ: dos stevens" ~:
             "Carlos" @=? nombreA (stevenBradburyJ dataStevenBradburyJ''),
 
+<<<<<<< HEAD
         "uyOrdenadoAsiHayUnPatronJ : devuelve True para dataUyOrdenadoAsiHayUnPatronJ" ~:
           True @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJ,
 
@@ -151,6 +158,29 @@ tests = TestList [
           False @=? auxExisteNacionalidad
           (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia") 
             (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia" ))) "Etiopia" ("Futbol",Masculino)
+=======
+        -- sequiaOlimpicaJ ------------------------------------------------------------
+
+        "sequiaOlimpicaJ: juegos vacío" ~:
+            [] @=? sequiaOlimpicaJ (nuevoJ 2012 [] []),
+
+        "sequiaOlimpicaJ: 1 día, 1 país, 0 competencias" ~:
+            ["Argentina"] @=? sequiaOlimpicaJ (nuevoJ 2012 [dataAtleta "Juan" "Argentina" 1 []] []),
+
+        "sequiaOlimpicaJ: 1 día, 2 paises, 0 competencias" ~:
+            ["Argentina", "Brasil"] @=?
+                sequiaOlimpicaJ (nuevoJ 2012 [dataAtleta "Juan" "Argentina" 1 [],
+                                              dataAtleta "Pepe" "Brasil"    2 []] []),
+
+        "sequiaOlimpicaJ: 1 día, 2 paises, 1 competencia, 1 medallista" ~:
+            ["Argentina", "Brasil"] @=? sequiaOlimpicaJ dataSequiaOlimpicaJ,
+
+        "sequiaOlimpicaJ: 3 días, 2 paises, 1 seco" ~:
+            ["Brasil"] @=? sequiaOlimpicaJ dataSequiaOlimpicaJ',
+
+        "sequiaOlimpicaJ: 5 días, 3 paises, 2 secos" ~:
+            ["Brasil", "Chile"] @=? sequiaOlimpicaJ dataSequiaOlimpicaJ''
+>>>>>>> f9bd870c3aefd7c31a44c4d9f248c30aac60a7b5
     ]
 
 
@@ -303,9 +333,34 @@ dataStevenBradburyJ'' = transcurrirDiaJ (nuevoJ 2012 atletas [dia1, dia2])
                          finalizarC (nuevaC "Basket"   Masculino atletas) [2,1,3] []]
           dia2        = [finalizarC (nuevaC "Handball" Masculino atletas) [3,1,2] []]
 
+dataSequiaOlimpicaJ   = nuevoJ 2012 atletas [[competencia]]
+    where atletas     = [dataAtleta "Juan" "Argentina" 1 [("Futbol", 10)],
+                         dataAtleta "Pepe" "Brasil"    2 [("Futbol", 20)]]
+          competencia = finalizarC (nuevaC "Futbol" Masculino atletas) [1] []
+
+dataSequiaOlimpicaJ' = transcurrirDias (nuevoJ 2012 atletas [dia1, dia2, dia3]) 2
+    where atletas    = [dataAtleta "Juan" "Argentina" 1 [("Futbol", 10), ("Basket", 40), ("Handball", 50)],
+                        dataAtleta "Pepe" "Brasil"    2 [("Futbol", 20), ("Basket", 30), ("Handball", 60)]]
+          dia1       = [finalizarC (nuevaC "Futbol"   Masculino atletas) [1]   []]
+          dia2       = [finalizarC (nuevaC "Basket"   Masculino atletas) [1]   []]
+          dia3       = [finalizarC (nuevaC "Handball" Masculino atletas) [2,1] []]
+
+dataSequiaOlimpicaJ'' = transcurrirDias (nuevoJ 2012 atletas [dia1, dia2, dia3, dia4, dia5]) 4
+    where atletas     = [dataAtleta "Juan"   "Argentina" 1 [("A", 10), ("B", 40), ("C", 50), ("D", 80), ("E", 90)],
+                         dataAtleta "Pepe"   "Brasil"    2 [("A", 20), ("B", 30), ("C", 60), ("D", 70), ("E", 95)],
+                         dataAtleta "Carlos" "Chile"     3 [("A", 20), ("B", 30), ("C", 60), ("D", 70), ("E", 95)]]
+          dia1        = [finalizarC (nuevaC "A" Masculino atletas) [2,1] []]
+          dia2        = [finalizarC (nuevaC "B" Masculino atletas) [1,2] []]
+          dia3        = [finalizarC (nuevaC "C" Masculino atletas) [3,1] []]
+          dia4        = [finalizarC (nuevaC "D" Masculino atletas) [1]   []]
+          dia5        = [finalizarC (nuevaC "E" Masculino atletas) [2,3] []]
+
+
 dataAtleta :: String -> Pais -> Int -> [(Deporte, Int)] -> Atleta
 dataAtleta nombre pais ciaNumber capacidades =
         entrenar (nuevoA nombre Masculino 18 pais ciaNumber) capacidades
     where entrenar a []     = a
           entrenar a (x:xs) = entrenar (entrenarDeporteA a (fst x) (snd x)) xs
 
+transcurrirDias j 0 = j
+transcurrirDias j d = transcurrirDias (transcurrirDiaJ j) (d - 1)
