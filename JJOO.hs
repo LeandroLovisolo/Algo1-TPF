@@ -47,7 +47,8 @@ jornadaActualJ (NuevoDia _ juegos) = jornadaActualJ juegos
 dePaseoJ :: JJOO -> [Atleta]
 dePaseoJ j = buscar j (atletasJ j)
     where buscar (J _ _ _) dePaseo           = dePaseo
-          buscar (NuevoDia (x:xs) j) dePaseo = buscar (NuevoDia xs j) (filtrar dePaseo (participantesC x))
+          buscar (NuevoDia (x:xs) j) dePaseo = buscar (NuevoDia xs j)
+                                                      (filtrar dePaseo (participantesC x))
           buscar (NuevoDia [] j) dePaseo     = buscar j dePaseo
           filtrar [] _                       = []
           filtrar (x:xs) indeseados
