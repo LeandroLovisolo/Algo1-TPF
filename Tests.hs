@@ -65,6 +65,11 @@ runtests = runTestTT tests
 
 tests = TestList [
 
+        -------------------------------------------------------------------------------
+        -- Módulo Atleta --------------------------------------------------------------
+        -------------------------------------------------------------------------------
+        "entrenarDeporteA : agrega varios deportes y verifica orden" ~:
+         True @=? deportesEnOrden (deportesA (entrenarDeportes (nuevoA "Pepe" Masculino 18 "Arg" 133) dataEntrenarDeporteA)),
 
         -------------------------------------------------------------------------------
         -- Módulo Competencia ---------------------------------------------------------
@@ -160,7 +165,7 @@ tests = TestList [
         "boicotPorDisciplinaJ : devuelve JJOO sin atletas de ese pais en la categoria, prueba con ningun atleta de tal pais en la categoria" ~:
           False @=? auxExisteNacionalidad
           (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia") 
-            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia" ))) "Etiopia" ("Futbol",Masculino)
+            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia" ))) "Etiopia" ("Futbol",Masculino),
 
         -- sequiaOlimpicaJ ------------------------------------------------------------
 
@@ -357,6 +362,17 @@ dataSequiaOlimpicaJ'' = transcurrirDias (nuevoJ 2012 atletas [dia1, dia2, dia3, 
           dia4        = [finalizarC (nuevaC "D" Masculino atletas) [1]   []]
           dia5        = [finalizarC (nuevaC "E" Masculino atletas) [2,3] []]
 
+dataEntrenarDeporteA :: [(Deporte, Int)]
+dataEntrenarDeporteA = [("Futbol", 23), ("Bmx", 40), ("Tenis", 60), ("Trekking", 30), ("Buceo", 23), ("Javalina", 30)]
+
+entrenarDeportes :: Atleta -> [(Deporte, Int)] -> Atleta
+entrenarDeportes atle [] = atle
+entrenarDeportes atle (dep:deportes) = entrenarDeporteA atle (fst dep) (snd dep)
+
+deportesEnOrden :: [Deporte] -> Bool
+deportesEnOrden [] = True
+deportesEnOrden [x] = True
+deportesEnOrden (fdep:sdep:deportes) = (fdep <= sdep) && (deportesEnOrden (sdep:deportes))
 
 dataAtleta :: String -> Pais -> Int -> [(Deporte, Int)] -> Atleta
 dataAtleta nombre pais ciaNumber capacidades =
