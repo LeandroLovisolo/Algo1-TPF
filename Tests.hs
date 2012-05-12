@@ -64,6 +64,13 @@ runtests = runTestTT tests
 
 
 tests = TestList [
+
+
+        -------------------------------------------------------------------------------
+        -- Módulo Competencia ---------------------------------------------------------
+        -------------------------------------------------------------------------------
+
+
         "rankingC: devuelve los atletas correctos" ~:
             ["Abel", "Beto", "Carlos", "Daniel", "Esteban", "Federico", "Gabriel", "Horacio"]
                 @=? map nombreA (rankingC dataCompetencia),
@@ -74,6 +81,12 @@ tests = TestList [
         "leDioPositivoC: devuelve los valores correctos" ~:
             [False, True] @=? map (\a -> leDioPositivoC dataCompetencia a)
                                   (lesTocoControlAntiDopingC dataCompetencia),
+
+
+        -------------------------------------------------------------------------------
+        -- Módulo JJOO ----------------------------------------------------------------
+        -------------------------------------------------------------------------------
+
 
         "dePaseoJ: devuelve los atletas correctos" ~:
             [555, 666] @=? map ciaNumberA (dePaseoJ dataDePaseoJ),
@@ -120,6 +133,7 @@ tests = TestList [
 -------------------------------------------------------------------------------
 -- Datos de prueba ------------------------------------------------------------
 -------------------------------------------------------------------------------
+
 
 dataCompetencia :: Competencia
 dataCompetencia = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
