@@ -125,8 +125,16 @@ tests = TestList [
              ("Ecuador",   [1, 1, 0]),
              ("Chile",     [1, 0, 2]),
              ("Brasil",    [0, 2, 1]),
-             ("Dinamarca", [0, 0, 1])] @=? medalleroJ dataMedalleroJ
-             
+             ("Dinamarca", [0, 0, 1])] @=? medalleroJ dataMedalleroJ,
+
+        "stevenBradburyJ: una sola competencia" ~:
+            "Abel" @=? nombreA (stevenBradburyJ dataStevenBradburyJ),
+
+        "stevenBradburyJ: dos competencias" ~:
+            "Beto" @=? nombreA (stevenBradburyJ dataStevenBradburyJ'),
+
+        "stevenBradburyJ: dos stevens" ~:
+            "Carlos" @=? nombreA (stevenBradburyJ dataStevenBradburyJ'')
     ]
 
 
@@ -191,3 +199,28 @@ dataAtletas = map entrenarDeportes atletas
         entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
         entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte (capacidad atleta)
         capacidad atleta = ciaNumberA atleta
+
+dataStevenBradburyJ   = nuevoJ 2012 atletas [[competencia]]
+    where atletas     = [dataAtleta "Abel" "Argentina" 1 [("Futbol", 100)]]
+          competencia = finalizarC (nuevaC "Futbol" Masculino atletas) [1] []
+
+dataStevenBradburyJ'   = nuevoJ 2012 atletas [competencias]
+    where atletas      = [dataAtleta "Abel" "Argentina" 1 [("Futbol", 100), ("Basket", 50)],
+                          dataAtleta "Beto" "Argentina" 2 [("Futbol", 80),  ("Basket", 20)]]
+          competencias = [finalizarC (nuevaC "Futbol" Masculino atletas) [1] [],
+                          finalizarC (nuevaC "Basket" Masculino atletas) [2] []]
+
+dataStevenBradburyJ'' = transcurrirDiaJ (nuevoJ 2012 atletas [dia1, dia2])
+    where atletas     = [dataAtleta "Abel"   "Argentina" 1 [("Futbol", 100), ("Basket", 50), ("Handball", 40)],
+                         dataAtleta "Beto"   "Argentina" 2 [("Futbol", 80),  ("Basket", 20), ("Handball", 30)],
+                         dataAtleta "Carlos" "Argentina" 3 [("Futbol", 90),  ("Basket", 60), ("Handball", 10)]]
+          dia1        = [finalizarC (nuevaC "Futbol"   Masculino atletas) [1,2,3] [],
+                         finalizarC (nuevaC "Basket"   Masculino atletas) [2,1,3] []]
+          dia2        = [finalizarC (nuevaC "Handball" Masculino atletas) [3,1,2] []]
+
+dataAtleta :: String -> Pais -> Int -> [(Deporte, Int)] -> Atleta
+dataAtleta nombre pais ciaNumber capacidades =
+        entrenar (nuevoA nombre Masculino 18 pais ciaNumber) capacidades
+    where entrenar a []     = a
+          entrenar a (x:xs) = entrenar (entrenarDeporteA a (fst x) (snd x)) xs
+
