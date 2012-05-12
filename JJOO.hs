@@ -45,27 +45,18 @@ jornadaActualJ (NuevoDia _ juegos) = jornadaActualJ juegos
 -------------------------------------------------------------------------------
 
 dePaseoJ :: JJOO -> [Atleta]
-dePaseoJ juegos = auxDePaseoJ juegos (atletasJ juegos)
-
-auxDePaseoJ :: JJOO -> [Atleta] -> [Atleta]
-auxDePaseoJ (J _ _ _) atles = atles
-auxDePaseoJ (NuevoDia (compe:competencias) juegos) atles =
-    auxDePaseoJ (NuevoDia competencias juegos) (auxSacarAtletas atles (participantesC compe))
-auxDePaseoJ (NuevoDia [] juegos) atles = auxDePaseoJ juegos atles
-
-auxSacarAtletas :: [Atleta] -> [Atleta] -> [Atleta]
-auxSacarAtletas atletas [] = []
-auxSacarAtletas [] atletasParaSacar = []
-auxSacarAtletas (atle:atletas) atletasParaSacar
-    | auxExisteAtletaConCia atletasParaSacar (ciaNumberA atle) =
-        auxSacarAtletas atletas atletasParaSacar
-    | otherwise = atle : auxSacarAtletas atletas atletasParaSacar
-
-auxExisteAtletaConCia :: [Atleta] -> Int -> Bool
-auxExisteAtletaConCia [] _ = False
-auxExisteAtletaConCia (atle:atletas) cia
-    | ((ciaNumberA atle) == cia) = True
-    | otherwise = auxExisteAtletaConCia atletas cia
+dePaseoJ j = buscar j (atletasJ j)
+    where buscar (J _ _ _) dePaseo           = dePaseo
+          buscar (NuevoDia (x:xs) j) dePaseo = buscar (NuevoDia xs j) (filtrar dePaseo (participantesC x))
+          buscar (NuevoDia [] j) dePaseo     = buscar j dePaseo
+          filtrar [] _                       = []
+          filtrar (x:xs) indeseados
+            | pertenece x indeseados         = filtrar xs indeseados
+            | otherwise                      = x:(filtrar xs indeseados)
+          pertenece a []                     = False
+          pertenece a (x:xs)                 
+            | ciaNumberA a == ciaNumberA x   = True
+            | otherwise                      = pertenece a xs          
 
 -------------------------------------------------------------------------------
 -- Fin de dePaseoJ ------------------------------------------------------------
