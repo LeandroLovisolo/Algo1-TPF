@@ -381,18 +381,5 @@ dataAtleta nombre pais ciaNumber capacidades =
     where entrenar a []     = a
           entrenar a (x:xs) = entrenar (entrenarDeporteA a (fst x) (snd x)) xs
 
-rankingSinTramposos :: Competencia -> [Atleta] -> Bool
-rankingSinTramposos _ [] = True
-rankingSinTramposos compe (rank:ranking) | estaDopado (armarDopping compe (lesTocoControlAntiDopingC compe)) (ciaNumberA rank) = False
-                                         | otherwise = rankingSinTramposos compe ranking
-
-armarDopping :: Competencia -> [Atleta] -> [(Int, Bool)]
-armarDopping _ [] = []
-armarDopping compe (atle:atletas) = (ciaNumberA atle,leDioPositivoC compe atle) : (armarDopping compe atletas)
-
-estaDopado :: [(Int, Bool)] -> Int -> Bool
-estaDopado [] _ = False
-estaDopado (dop:dopping) ciaAtle | ((fst dop) == ciaAtle) && (snd dop) = True
-                                 | otherwise = estaDopado dopping ciaAtle
 transcurrirDias j 0 = j
 transcurrirDias j d = transcurrirDias (transcurrirDiaJ j) (d - 1)
