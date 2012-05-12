@@ -2,7 +2,7 @@ module JJOO (JJOO, nuevoJ, anioJ, atletasJ, cantDiasJ, cronogramaJ,
              jornadaActualJ, dePaseoJ, medalleroJ,
              boicotPorDisciplinaJ, losMasFracasadosJ, liuSongJ,
              stevenBradburyJ, uyOrdenadoAsiHayUnPatronJ, sequiaOlimpicaJ,
-             transcurrirDiaJ, auxRecorreYCompara)
+             transcurrirDiaJ)
 where
 
 import Tipos
