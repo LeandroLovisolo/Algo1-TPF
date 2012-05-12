@@ -142,12 +142,15 @@ tests = TestList [
         "stevenBradburyJ: dos stevens" ~:
             "Carlos" @=? nombreA (stevenBradburyJ dataStevenBradburyJ''),
 
-<<<<<<< HEAD
+        -- uyOrdenadoAsiHayUnPatronJ -----------------------------------------------
+
         "uyOrdenadoAsiHayUnPatronJ : devuelve True para dataUyOrdenadoAsiHayUnPatronJ" ~:
           True @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJ,
 
         "uyOrdenadoAsiHayUnPatronJ : devuelve False para dataUyOrdenadoAsiHayUnPatronJDos" ~:
           False @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJDos,
+
+        -- boicotPorDisciplinaJ ---------------------------------------------------------
 
         "boicotPorDisciplinaJ : devuelve JJOO sin atletas de ese pais en la categoria" ~:
           False @=? auxExisteNacionalidad
@@ -158,7 +161,7 @@ tests = TestList [
           False @=? auxExisteNacionalidad
           (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia") 
             (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia" ))) "Etiopia" ("Futbol",Masculino)
-=======
+
         -- sequiaOlimpicaJ ------------------------------------------------------------
 
         "sequiaOlimpicaJ: juegos vacío" ~:
@@ -180,7 +183,6 @@ tests = TestList [
 
         "sequiaOlimpicaJ: 5 días, 3 paises, 2 secos" ~:
             ["Brasil", "Chile"] @=? sequiaOlimpicaJ dataSequiaOlimpicaJ''
->>>>>>> f9bd870c3aefd7c31a44c4d9f248c30aac60a7b5
     ]
 
 
