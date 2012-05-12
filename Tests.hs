@@ -134,7 +134,23 @@ tests = TestList [
             "Beto" @=? nombreA (stevenBradburyJ dataStevenBradburyJ'),
 
         "stevenBradburyJ: dos stevens" ~:
-            "Carlos" @=? nombreA (stevenBradburyJ dataStevenBradburyJ'')
+            "Carlos" @=? nombreA (stevenBradburyJ dataStevenBradburyJ''),
+
+        "uyOrdenadoAsiHayUnPatronJ : devuelve True para dataUyOrdenadoAsiHayUnPatronJ" ~:
+          True @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJ,
+
+        "uyOrdenadoAsiHayUnPatronJ : devuelve False para dataUyOrdenadoAsiHayUnPatronJDos" ~:
+          False @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJDos,
+
+        "boicotPorDisciplinaJ : devuelve JJOO sin atletas de ese pais en la categoria" ~:
+          False @=? auxExisteNacionalidad
+          (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Argentina") 
+            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Argentina" ))) "Argentina" ("Futbol",Masculino),
+        
+        "boicotPorDisciplinaJ : devuelve JJOO sin atletas de ese pais en la categoria, prueba con ningun atleta de tal pais en la categoria" ~:
+          False @=? auxExisteNacionalidad
+          (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia") 
+            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia" ))) "Etiopia" ("Futbol",Masculino)
     ]
 
 
@@ -183,6 +199,75 @@ dataTranscurrirDiaJ = transcurrirDiaJ (nuevoJ 2012 dataAtletas cronograma)
                   (competencia  "Rugby")]
           competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
           competencia  dep     = (nuevaC dep Masculino dataAtletas)
+
+dataUyOrdenadoAsiHayUnPatronJ :: JJOO
+dataUyOrdenadoAsiHayUnPatronJ = (nuevoJ 2012 dataAtletas cronograma)
+    where cronograma = [dia1, dia2, dia3, dia4]
+          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
+                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
+          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
+                  (competencia  "Arqueria"),
+                  (competencia  "Natacion")]
+          dia3 = [(competenciaF  "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competencia  "Hockey"),
+                  (competencia  "Rugby")]
+          dia4 = [(competenciaF "Snowboard" [555, 222, 444, 111, 666, 888, 777, 333]),
+                  (competencia  "Skate"),
+                  (competencia  "Bmx")]
+          competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
+          competencia  dep     = (nuevaC dep Masculino dataAtletas)
+
+dataUyOrdenadoAsiHayUnPatronJDos :: JJOO
+dataUyOrdenadoAsiHayUnPatronJDos = (nuevoJ 2012 dataAtletas cronograma)
+    where cronograma = [dia1, dia2, dia3, dia4]
+          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
+                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
+          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
+                  (competencia  "Arqueria"),
+                  (competencia  "Natacion")]
+          dia3 = [(competenciaF  "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competencia  "Hockey"),
+                  (competencia  "Rugby")]
+          dia4 = [(competenciaF "Snowboard" [111, 555, 333, 444, 888, 222, 666, 777]),
+                  (competencia  "Skate"),
+                  (competencia  "Bmx")]
+          competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
+          competencia  dep     = (nuevaC dep Masculino dataAtletas)
+
+
+dataBoicotPorDisciplinaJ :: JJOO
+dataBoicotPorDisciplinaJ = (nuevoJ 2012 dataAtletas cronograma)
+    where cronograma = [dia1, dia2, dia3, dia4]
+          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
+                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
+          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
+                  (competencia  "Arqueria"),
+                  (competencia  "Natacion")]
+          dia3 = [(competenciaF  "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competencia  "Hockey"),
+                  (competencia  "Rugby")]
+          dia4 = [(competenciaF "Snowboard" [111, 555, 333, 444, 888, 222, 666, 777]),
+                  (competencia  "Skate"),
+                  (competencia  "Bmx")]
+          competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
+          competencia  dep     = (nuevaC dep Masculino dataAtletas)
+
+auxExisteNacionalidad :: [Competencia] -> Pais -> Categoria -> Bool
+auxExisteNacionalidad [] _ _ = False
+auxExisteNacionalidad (compe:competencias) pais cate 
+              | ((categoriaC compe) == cate) && (elem pais (listaPaisesAtletas (participantesC compe) )) = True
+              | otherwise = auxExisteNacionalidad competencias pais cate
+
+listaPaisesAtletas :: [Atleta] -> [Pais]
+listaPaisesAtletas [] = []
+listaPaisesAtletas (atle:atletas) = (nacionalidadA atle) : (listaPaisesAtletas atletas)
+
+todasLasCompe :: JJOO -> Int -> [Competencia]
+todasLasCompe juegos 1 = cronogramaJ juegos 1
+todasLasCompe juegos x = (cronogramaJ juegos x) ++ (todasLasCompe juegos (x-1))
 
 dataAtletas :: [Atleta]
 dataAtletas = map entrenarDeportes atletas 
