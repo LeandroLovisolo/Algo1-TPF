@@ -446,19 +446,19 @@ auxExistePatron paises indice maximo
 
 stevenBradburyJ :: JJOO -> Atleta
 stevenBradburyJ j = buscarElMenosCapaz (tuplasMedallistasCapacidad j)
-    where buscarElMenosCapaz [x] = fst x
+    where buscarElMenosCapaz [x]       = fst x
           buscarElMenosCapaz (x:xs)
-            | esElMenosCapaz x (x:xs) = fst x
-            | otherwise               = buscarElMenosCapaz xs
-          esElMenosCapaz _ [] = True 
-          esElMenosCapaz a (x:xs) = (snd(a) <= snd(x)) && (esElMenosCapaz a xs)
+            | esElMenosCapaz x (x:xs)  = fst x
+            | otherwise                = buscarElMenosCapaz xs
+          esElMenosCapaz _ []          = True 
+          esElMenosCapaz a (x:xs)      = (snd(a) <= snd(x)) && (esElMenosCapaz a xs)
           tuplasMedallistasCapacidad j = obtenerTuplas (competenciasFinalizadas j)
-          obtenerTuplas [] = []
+          obtenerTuplas []             = []
           obtenerTuplas (x:xs)
             | length (rankingC x) == 0 = obtenerTuplas xs
             | otherwise                = obtenerTupla x : obtenerTuplas xs
-          obtenerTupla x = (head (rankingC x),
-                            capacidadA (head (rankingC x)) (fst (categoriaC x)))
+          obtenerTupla x               = (head (rankingC x), capacidadA (head (rankingC x))
+                                                                        (fst (categoriaC x)))
 
 -------------------------------------------------------------------------------
 -- Fin de stevenBradburyJ -----------------------------------------------------
