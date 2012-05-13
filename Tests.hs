@@ -188,6 +188,13 @@ tests = TestList [
         "stevenBradburyJ: dos stevens" ~:
             "Carlos" @=? nombreA (stevenBradburyJ dataStevenBradburyJ''),
 
+        -- losMasFracasadosJ ----------------------------------------------------------
+
+        "losMasFracasadosJ" ~: True @=?
+            mismosAtletas [dataAtleta "Abel"     "Argentina" 1 [],
+                           dataAtleta "Beto"     "Argentina" 2 []]
+                          (losMasFracasadosJ dataLosMasFracasadosJ "Argentina"),
+
         -- liuSongJ -------------------------------------------------------------------
 
         "liuSongJ: " ~: True @=? probarLiuSongJ,
@@ -455,6 +462,28 @@ atletasIguales a1 a2 = nombreA a1         == nombreA a2         &&
 
 mismos :: Eq a => [a] -> [a] -> Bool
 mismos x y = (all (`elem` x) y) && (all (`elem` y) x)
+
+
+
+
+dataLosMasFracasadosJ = transcurrirDias (nuevoJ 2012 atletas [dia1, dia2]) 2
+    where atletas     = [atleta1, atleta2, atleta3, atleta4,
+                         atleta5, atleta6, atleta7, atleta8] 
+          atleta1     = dataAtleta "Abel"     "Argentina" 1 []
+          atleta2     = dataAtleta "Beto"     "Argentina" 2 []
+          atleta3     = dataAtleta "Coco"     "Argentina" 3 []
+          atleta4     = dataAtleta "Dani"     "Argentina" 4 []
+          atleta5     = dataAtleta "Eber"     "Argentina" 5 []
+          atleta6     = dataAtleta "Fede"     "Brasil"    6 []
+          atleta7     = dataAtleta "Gabi"     "Brasil"    7 []
+          atleta8     = dataAtleta "Lalo"     "Brasil"    8 []
+          atletasA    = atletas
+          atletasB    = [atleta1, atleta2, atleta3, atleta4, atleta6, atleta8]
+          atletasC    = [atleta1, atleta2, atleta3, atleta5, atleta7, atleta8]
+          dia1        = [finalizarC (nuevaC "A" Masculino atletasA) [3,5,6,7,8] [],
+                         finalizarC (nuevaC "B" Masculino atletasB) [8,4,6,2,1] []]
+          dia2        = [finalizarC (nuevaC "C" Masculino atletasC) [7,8,5,2,3] []]
+
 
 
 dataEntrenarDeporteA :: [(Deporte, Int)]
