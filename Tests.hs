@@ -159,11 +159,11 @@ tests = TestList [
 
         -- uyOrdenadoAsiHayUnPatronJ -----------------------------------------------
 
-        "uyOrdenadoAsiHayUnPatronJ: devuelve True para dataUyOrdenadoAsiHayUnPatronJ" ~:
-          True @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJ,
+        "uyOrdenadoAsiHayUnPatronJ: existe patrón" ~:
+            True @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJ,
 
-        "uyOrdenadoAsiHayUnPatronJ: devuelve False para dataUyOrdenadoAsiHayUnPatronJDos" ~:
-          False @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJDos,
+        "uyOrdenadoAsiHayUnPatronJ: no existe patrón" ~:
+            False @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJ',
 
         -- boicotPorDisciplinaJ ---------------------------------------------------------
 
@@ -293,36 +293,36 @@ dataTranscurrirDiaJ = transcurrirDiaJ (nuevoJ 2012 dataAtletas cronograma)
 dataUyOrdenadoAsiHayUnPatronJ :: JJOO
 dataUyOrdenadoAsiHayUnPatronJ = (nuevoJ 2012 dataAtletas cronograma)
     where cronograma = [dia1, dia2, dia3, dia4]
-          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
-                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
-                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
-          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
+          dia1 = [(competenciaF "Futbol"             [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competenciaF "Handball"           [333, 111, 222, 888, 555, 444, 777, 666]),
+                  (competenciaF "Basket"             [111, 555, 333, 444, 888, 222, 666, 777])]
+          dia2 = [(competenciaF "Volley"             [555, 222, 444, 111, 666, 888, 777, 333]),
                   (competencia  "Arqueria"),
                   (competencia  "Natacion")]
           dia3 = [(competenciaF "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
                   (competencia  "Hockey"),
                   (competencia  "Rugby")]
-          dia4 = [(competenciaF "Snowboard" [555, 222, 444, 111, 666, 888, 777, 333]),
+          dia4 = [(competenciaF "Snowboard"          [555, 222, 444, 111, 666, 888, 777, 333]),
                   (competencia  "Skate"),
-                  (competencia  "Bmx")]
+                  (competencia  "BMX")]
           competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
           competencia  dep     = (nuevaC dep Masculino dataAtletas)
 
-dataUyOrdenadoAsiHayUnPatronJDos :: JJOO
-dataUyOrdenadoAsiHayUnPatronJDos = (nuevoJ 2012 dataAtletas cronograma)
+dataUyOrdenadoAsiHayUnPatronJ' :: JJOO
+dataUyOrdenadoAsiHayUnPatronJ' = (nuevoJ 2012 dataAtletas cronograma)
     where cronograma = [dia1, dia2, dia3, dia4]
-          dia1 = [(competenciaF "Futbol"   [111, 222, 333, 555, 444, 777, 888, 666]),
-                  (competenciaF "Handball" [333, 111, 222, 888, 555, 444, 777, 666]),
-                  (competenciaF "Basket"   [111, 555, 333, 444, 888, 222, 666, 777])]
-          dia2 = [(competenciaF "Volley"   [555, 222, 444, 111, 666, 888, 777, 333]),
+          dia1 = [(competenciaF "Futbol"             [111, 222, 333, 555, 444, 777, 888, 666]),
+                  (competenciaF "Handball"           [333, 111, 222, 888, 555, 444, 777, 666]),
+                  (competenciaF "Basket"             [111, 555, 333, 444, 888, 222, 666, 777])]
+          dia2 = [(competenciaF "Volley"             [555, 222, 444, 111, 666, 888, 777, 333]),
                   (competencia  "Arqueria"),
                   (competencia  "Natacion")]
-          dia3 = [(competenciaF  "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
+          dia3 = [(competenciaF "Gimnasia Artistica" [111, 222, 333, 555, 444, 777, 888, 666]),
                   (competencia  "Hockey"),
                   (competencia  "Rugby")]
-          dia4 = [(competenciaF "Snowboard" [111, 555, 333, 444, 888, 222, 666, 777]),
+          dia4 = [(competenciaF "Snowboard"          [111, 555, 333, 444, 888, 222, 666, 777]),
                   (competencia  "Skate"),
-                  (competencia  "Bmx")]
+                  (competencia  "BMX")]
           competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
           competencia  dep     = (nuevaC dep Masculino dataAtletas)
 
