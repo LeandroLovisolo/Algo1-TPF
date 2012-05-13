@@ -202,11 +202,13 @@ boicotPorDisciplinaJ (NuevoDia competencias juegos) cate pais =
               (boicotPorDisciplinaJ juegos cate pais))
 
 auxRankingSinAtletasConPais :: [Atleta] -> Pais -> [Int]
+auxRankingSinAtletasConPais [] _ = []
 auxRankingSinAtletasConPais (atle:atletas) pais
     | (nacionalidadA atle) == pais = auxRankingSinAtletasConPais atletas pais
     | otherwise                    = (ciaNumberA atle) : (auxRankingSinAtletasConPais atletas pais)
 
 auxDoppingSinAtletasConPais :: [Atleta] -> Pais -> Competencia -> [(Int, Bool)]
+auxDoppingSinAtletasConPais [] _ _ = []
 auxDoppingSinAtletasConPais (atle:atletas) pais compe
     | (nacionalidadA atle) == pais = auxDoppingSinAtletasConPais atletas pais compe
     | otherwise                    = (ciaNumberA atle, leDioPositivoC compe atle) :
