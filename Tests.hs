@@ -105,10 +105,14 @@ tests = TestList [
 
         "gananLosMasCapacesC : Devuelve True teniendo ranking vacio"~:
           True @=? gananLosMasCapacesC dataGananLosMasCapacesCVacio,
+
+
         -------------------------------------------------------------------------------
         -- Módulo JJOO ----------------------------------------------------------------
         -------------------------------------------------------------------------------
 
+
+         -- dePaseoJ -------------------------------------------------------------------
 
         "dePaseoJ: devuelve los atletas correctos" ~:
             [555, 666] @=? map ciaNumberA (dePaseoJ dataDePaseoJ),
@@ -153,6 +157,26 @@ tests = TestList [
              ("Brasil",    [0, 2, 1]),
              ("Dinamarca", [0, 0, 1])] @=? medalleroJ dataMedalleroJ,
 
+        -- uyOrdenadoAsiHayUnPatronJ -----------------------------------------------
+
+        "uyOrdenadoAsiHayUnPatronJ: devuelve True para dataUyOrdenadoAsiHayUnPatronJ" ~:
+          True @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJ,
+
+        "uyOrdenadoAsiHayUnPatronJ: devuelve False para dataUyOrdenadoAsiHayUnPatronJDos" ~:
+          False @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJDos,
+
+        -- boicotPorDisciplinaJ ---------------------------------------------------------
+
+        "boicotPorDisciplinaJ: devuelve JJOO sin atletas de ese pais en la categoria" ~:
+          False @=? auxExisteNacionalidad
+          (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Argentina") 
+            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Argentina" ))) "Argentina" ("Futbol",Masculino),
+        
+        "boicotPorDisciplinaJ: devuelve JJOO sin atletas de ese pais en la categoria, prueba con ningun atleta de tal pais en la categoria" ~:
+          False @=? auxExisteNacionalidad
+          (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia") 
+            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia" ))) "Etiopia" ("Futbol",Masculino),
+
         -- stevenBradburyJ ------------------------------------------------------------
 
         "stevenBradburyJ: una sola competencia" ~:
@@ -164,25 +188,9 @@ tests = TestList [
         "stevenBradburyJ: dos stevens" ~:
             "Carlos" @=? nombreA (stevenBradburyJ dataStevenBradburyJ''),
 
-        -- uyOrdenadoAsiHayUnPatronJ -----------------------------------------------
+        -- liuSongJ -------------------------------------------------------------------
 
-        "uyOrdenadoAsiHayUnPatronJ : devuelve True para dataUyOrdenadoAsiHayUnPatronJ" ~:
-          True @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJ,
-
-        "uyOrdenadoAsiHayUnPatronJ : devuelve False para dataUyOrdenadoAsiHayUnPatronJDos" ~:
-          False @=? uyOrdenadoAsiHayUnPatronJ dataUyOrdenadoAsiHayUnPatronJDos,
-
-        -- boicotPorDisciplinaJ ---------------------------------------------------------
-
-        "boicotPorDisciplinaJ : devuelve JJOO sin atletas de ese pais en la categoria" ~:
-          False @=? auxExisteNacionalidad
-          (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Argentina") 
-            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Argentina" ))) "Argentina" ("Futbol",Masculino),
-        
-        "boicotPorDisciplinaJ : devuelve JJOO sin atletas de ese pais en la categoria, prueba con ningun atleta de tal pais en la categoria" ~:
-          False @=? auxExisteNacionalidad
-          (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia") 
-            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia" ))) "Etiopia" ("Futbol",Masculino),
+        "liuSongJ: " ~: True @=? probarLiuSongJ,
 
         -- sequiaOlimpicaJ ------------------------------------------------------------
 
@@ -220,8 +228,7 @@ dataCompetencia = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
 
 dataCompetenciaSinDopping :: Competencia
 dataCompetenciaSinDopping = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
-                             [111, 222, 333, 444, 555, 666, 777, 888]
-                             []
+                                       [111, 222, 333, 444, 555, 666, 777, 888] []
 
 dataGananLosMasCapacesC :: Competencia
 dataGananLosMasCapacesC = finalizarC (nuevaC "Futbol" Masculino atletas) [3,2,1] []
@@ -400,6 +407,55 @@ dataSequiaOlimpicaJ'' = transcurrirDias (nuevoJ 2012 atletas [dia1, dia2, dia3, 
           dia3        = [finalizarC (nuevaC "C" Masculino atletas) [3,1] []]
           dia4        = [finalizarC (nuevaC "D" Masculino atletas) [1]   []]
           dia5        = [finalizarC (nuevaC "E" Masculino atletas) [2,3] []]
+
+dataLiuSongJ       = transcurrirDiaJ (nuevoJ 2012 atletas [dia1, dia2, dia3])
+    where atleta1  = dataAtleta "Abel"     "Argentina" 1 [("A", 10), ("B", 80)]
+          atleta2  = dataAtleta "Beto"     "Brasil"    2 [("A", 20), ("B", 70)]
+          atleta3  = dataAtleta "Coco"     "Chile"     3 [("A", 30), ("B", 60)]
+          atleta4  = dataAtleta "Dani"     "Dinamarca" 4 [("A", 40), ("B", 50)]
+          atleta5  = dataAtleta "Eber"     "Ecuador"   5 [("A", 50), ("B", 40)]
+          atleta6  = dataAtleta "Fede"     "Finlandia" 6 [("A", 60), ("B", 30)]
+          atleta7  = dataAtleta "Gabi"     "Grecia"    7 [("A", 70), ("B", 20)]
+          liu      = dataAtleta "Liu Song" "China"     8 [("A", 80), ("B", 10)]
+          atletas  = [atleta1, atleta2, atleta3, atleta4, atleta5, atleta6, atleta7, liu]
+          atletas1 = [atleta1, atleta2, liu]
+          atletas2 = [atleta3, atleta4, atleta5]
+          atletas3 = [atleta6, atleta7, liu]
+          dia1     = [(finalizarC (nuevaC "A" Masculino atletas1) [1,2] [(1, False)]),
+                      (finalizarC (nuevaC "B" Masculino atletas2) [2,1] [(3, True)])]
+          dia2     = [nuevaC "C" Masculino atletas3]
+          dia3     = [nuevaC "D" Masculino atletas1,
+                      nuevaC "E" Masculino atletas3]
+
+probarLiuSongJ    = mismosAtletas (atletasJ result) atletas
+    where result  = liuSongJ dataLiuSongJ
+                            (dataAtleta "Liu Song" "Chile" 8 [("A", 80), ("B", 10)])
+                             "Argentina"
+          atletas = [dataAtleta "Abel"     "Argentina" 1 [("A", 10), ("B", 80)],
+                     dataAtleta "Beto"     "Brasil"    2 [("A", 20), ("B", 70)],
+                     dataAtleta "Coco"     "Chile"     3 [("A", 30), ("B", 60)],
+                     dataAtleta "Dani"     "Dinamarca" 4 [("A", 40), ("B", 50)],
+                     dataAtleta "Eber"     "Ecuador"   5 [("A", 50), ("B", 40)],
+                     dataAtleta "Fede"     "Finlandia" 6 [("A", 60), ("B", 30)],
+                     dataAtleta "Gabi"     "Grecia"    7 [("A", 70), ("B", 20)],
+                     dataAtleta "Liu Song" "Argentina" 8 [("A", 80), ("B", 10)]]
+
+
+mismosAtletas as1 as2 = all (\a1 -> any (\a2 -> atletasIguales a2 a1) as2) as1 &&
+                        all (\a2 -> any (\a1 -> atletasIguales a1 a2) as1) as2
+
+atletasIguales a1 a2 = nombreA a1         == nombreA a2         &&
+                       sexoA a1           == sexoA a2           &&
+                       anioNacimientoA a1 == anioNacimientoA a2 &&
+                       nacionalidadA a1   == nacionalidadA a2   &&
+                       ciaNumberA a1      == ciaNumberA a2      &&
+                       mismos (deportesA a1) (deportesA a2)     &&
+                       mismos (tuplasDepCap a1) (tuplasDepCap a2)
+    where tuplasDepCap a = map (\d -> (d, capacidadA a d)) (deportesA a)
+
+mismos :: Eq a => [a] -> [a] -> Bool
+mismos x y = (all (`elem` x) y) && (all (`elem` y) x)
+
 
 dataEntrenarDeporteA :: [(Deporte, Int)]
 dataEntrenarDeporteA = [("Futbol", 23), ("Bmx", 40), ("Tenis", 60), ("Trekking", 30), ("Buceo", 23), ("Javalina", 30)]
