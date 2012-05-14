@@ -60,6 +60,10 @@ removerAtletas (x:xs) atletasARemover
     | elem (ciaNumberA x) (auxAtletasACias atletasARemover) = removerAtletas xs atletasARemover
     | otherwise = x : (removerAtletas xs atletasARemover)
 
+auxAtletasACias :: [Atleta] -> [Int]
+auxAtletasACias [] = []
+auxAtletasACias (atle:atletas) = (ciaNumberA atle) : (auxAtletasACias atletas)
+
 -------------------------------------------------------------------------------
 -- Fin de dePaseoJ ------------------------------------------------------------
 -------------------------------------------------------------------------------    
@@ -108,8 +112,6 @@ medallistas m j = obtenerMedallistas (competenciasFinalizadas j) m
           obtenerMedallistas (x:xs) m
               | (length (rankingC x)) <= m = obtenerMedallistas xs m
               | otherwise                  = (rankingC x !! m) : obtenerMedallistas xs m
-
-
 
 -- Devuelve las competencias finalizadas hasta la jornada actual inclusive. 
 competenciasFinalizadas :: JJOO -> [Competencia]
@@ -289,54 +291,36 @@ losMasFracasadosJ j p = noGanaronMedallas (losMasParticipantes atletasDelPais)
 -------------------------------------------------------------------------------
 
 liuSongJ :: JJOO -> Atleta -> Pais -> JJOO
-liuSongJ (J anio atletas jornadaActual) atletaACambiar pais =
-    (J anio (auxCambiaNacionalidadAtleta atletas atletaACambiar pais) jornadaActual)
-liuSongJ (NuevoDia competencias juegos) atletaACambiar pais = 
-    (NuevoDia (auxProcesaCompetencias competencias atletaACambiar pais)
-              (liuSongJ juegos atletaACambiar pais))
+liuSongJ (J anio atletas d) liu p = (J anio (cambiarAtletas atletas liu p) d)
+liuSongJ (NuevoDia cs j) liu p    = (NuevoDia (cambiarCompetencias cs liu p) (liuSongJ j liu p))
 
-auxEntrenarDeportes :: Atleta -> Atleta -> [Deporte] -> Atleta
-auxEntrenarDeportes atleta atletaOriginal [] = atleta
-auxEntrenarDeportes atleta atletaOriginal (deporte:deportes) = 
-  auxEntrenarDeportes (entrenarDeporteA atleta deporte (capacidadA atletaOriginal deporte))
-                      atletaOriginal deportes
+cambiarAtletas :: [Atleta] -> Atleta -> Pais -> [Atleta]
+cambiarAtletas [] _ _ = []
+cambiarAtletas (x:xs) liu p
+        | ciaNumberA x == ciaNumberA liu = nacionalizarLiu:(cambiarAtletas xs liu p)
+        | otherwise                      = x:(cambiarAtletas xs liu p)
+    where nacionalizarLiu                = entrenarLiu nuevoLiu (deportesA liu)
+          nuevoLiu                       = (nuevoA (nombreA liu) (sexoA liu) (anioNacimientoA liu)
+                                                   p (ciaNumberA liu))
+          entrenarLiu liu' []            = liu'
+          entrenarLiu liu' (x:xs)        = entrenarLiu (entrenarDeporteA liu' x (capacidadA liu x)) xs
 
-auxCambiaNacionalidadAtleta :: [Atleta] -> Atleta -> Pais -> [Atleta]
-auxCambiaNacionalidadAtleta [] _ _ = []
-auxCambiaNacionalidadAtleta (atle:atletas) atleACambiar pais
-    | (ciaNumberA atle) == (ciaNumberA atleACambiar) =
-        (auxEntrenarDeportes (nuevoA (nombreA atle) (sexoA atle) (anioNacimientoA atle)
-                                     pais (ciaNumberA atle))
-                             atle (deportesA atle)) :
-        (auxCambiaNacionalidadAtleta atletas atleACambiar pais)
-    | otherwise = atle : (auxCambiaNacionalidadAtleta atletas atleACambiar pais)
-
-auxAtletasACias :: [Atleta] -> [Int]
-auxAtletasACias [] = []
-auxAtletasACias (atle:atletas) = (ciaNumberA atle) : (auxAtletasACias atletas)
-
-auxRecrearDopping :: Competencia -> [Atleta] -> [(Int,Bool)]
-auxRecrearDopping _ [] = []
-auxRecrearDopping compe (atle:atletas) =
-    (ciaNumberA atle, leDioPositivoC compe atle) : (auxRecrearDopping compe atletas)
-
-auxCambiaNacionalidadAtletaEnCompetencia :: Competencia -> Atleta -> Pais -> Competencia
-auxCambiaNacionalidadAtletaEnCompetencia compe atletaACambiar pais
-    | finalizadaC compe = finalizarC (nuevaC (fst (categoriaC compe))
-                                             (snd (categoriaC compe))
-                                             (auxCambiaNacionalidadAtleta (participantesC compe)
-                                                                          atletaACambiar pais))
-                                     (auxAtletasACias (rankingC compe))
-                                     (auxRecrearDopping compe (lesTocoControlAntiDopingC compe))
-    | otherwise = nuevaC (fst (categoriaC compe))
-                         (snd (categoriaC compe)) 
-                         (auxCambiaNacionalidadAtleta (participantesC compe) atletaACambiar pais)
-
-auxProcesaCompetencias :: [Competencia] -> Atleta -> Pais -> [Competencia]
-auxProcesaCompetencias [] _ _ = []
-auxProcesaCompetencias (compe:competencias) atletaACambiar pais = 
-    (auxCambiaNacionalidadAtletaEnCompetencia compe atletaACambiar pais) :
-    (auxProcesaCompetencias competencias atletaACambiar pais)
+cambiarCompetencias :: [Competencia] -> Atleta -> Pais -> [Competencia]
+cambiarCompetencias [] _ _= []
+cambiarCompetencias (x:xs) liu p = (cambiarCompetencia x):(cambiarCompetencias xs liu p)
+    where cambiarCompetencia c
+            | finalizadaC c            = finalizarC (nuevaCompetencia c)
+                                                    (ciaNumbers (rankingC c))
+                                                    (tuplasDoping c)
+            | otherwise                = nuevaCompetencia c
+          nuevaCompetencia c           = (nuevaC (fst (categoriaC c))
+                                                 (snd (categoriaC c))
+                                                 (cambiarAtletas (participantesC c) liu p))
+          ciaNumbers []                = []
+          ciaNumbers (x:xs)            = (ciaNumberA x):(ciaNumbers xs)
+          tuplasDoping c               = obtenerTuplasDoping c (lesTocoControlAntiDopingC c)
+          obtenerTuplasDoping c []     = []
+          obtenerTuplasDoping c (x:xs) = (ciaNumberA x, leDioPositivoC c x):(obtenerTuplasDoping c xs)
 
 -------------------------------------------------------------------------------
 -- Fin de liuSongJ ------------------------------------------------------------
