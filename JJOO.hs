@@ -387,8 +387,8 @@ auxMejorPaisEnElDia :: [(Pais, Int)] -> (Pais, Int) -> Pais
 auxMejorPaisEnElDia [] pais = (fst pais)
 auxMejorPaisEnElDia (pais:paises) paisMax 
     |  ((snd paisMax) > (snd pais)) ||
-      (((snd paisMax) > (snd pais)) &&
-       ((fst paisMax) > (fst pais))) = auxMejorPaisEnElDia paises paisMax
+      (((snd paisMax) == (snd pais)) &&
+       ((fst paisMax) < (fst pais))) = auxMejorPaisEnElDia paises paisMax
     | otherwise                      = auxMejorPaisEnElDia paises pais
 
 auxMeterPais :: [(Pais, Int)] -> Pais -> [(Pais, Int)]
