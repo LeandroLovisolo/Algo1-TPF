@@ -45,20 +45,21 @@ jornadaActualJ (NuevoDia _ juegos) = jornadaActualJ juegos
 -------------------------------------------------------------------------------
 
 dePaseoJ :: JJOO -> [Atleta]
-dePaseoJ (J _ atletas _) = atletas
-dePaseoJ (NuevoDia [] juegos) = dePaseoJ juegos
-dePaseoJ (NuevoDia (compe:competencias) juegos) = dePaseoJ (juegoSinAtletas (NuevoDia competencias juegos) (participantesC compe)) 
+dePaseoJ (J _ atletas _)          = atletas
+dePaseoJ (NuevoDia [] juegos)     = dePaseoJ juegos
+dePaseoJ (NuevoDia (x:xs) juegos) = dePaseoJ (juegoSinAtletas (NuevoDia xs juegos) (participantesC x)) 
 
 juegoSinAtletas :: JJOO -> [Atleta] -> JJOO
-juegoSinAtletas (J anio atletas jornada) atletasARemover = (J anio (removerAtletas atletas atletasARemover) jornada)
-juegoSinAtletas (NuevoDia competencias juegos) atletasARemover = (NuevoDia competencias (juegoSinAtletas juegos atletasARemover))
+juegoSinAtletas (J anio atletas j) atletasARemover = (J anio (removerAtletas atletas atletasARemover) j)
+juegoSinAtletas (NuevoDia c j) atletasARemover     = (NuevoDia c (juegoSinAtletas j atletasARemover))
 
 removerAtletas :: [Atleta] -> [Atleta] -> [Atleta]
 removerAtletas atletas [] = atletas 
-removerAtletas [] _ = []
-removerAtletas (atle:atletas) atletasARemover | elem (ciaNumberA atle) (auxAtletasACias atletasARemover) = 
-                                                removerAtletas atletas atletasARemover
-                                              | otherwise = atle : (removerAtletas atletas atletasARemover)
+removerAtletas [] _       = []
+removerAtletas (x:xs) atletasARemover
+    | elem (ciaNumberA x) (auxAtletasACias atletasARemover) = removerAtletas xs atletasARemover
+    | otherwise = x : (removerAtletas xs atletasARemover)
+
 -------------------------------------------------------------------------------
 -- Fin de dePaseoJ ------------------------------------------------------------
 -------------------------------------------------------------------------------    
