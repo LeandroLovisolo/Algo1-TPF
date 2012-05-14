@@ -50,7 +50,7 @@ dePaseoJ (NuevoDia [] juegos)     = dePaseoJ juegos
 dePaseoJ (NuevoDia (x:xs) juegos) = dePaseoJ (juegoSinAtletas (NuevoDia xs juegos) (participantesC x)) 
 
 juegoSinAtletas :: JJOO -> [Atleta] -> JJOO
-juegoSinAtletas (J anio atletas j) atletasARemover = (J anio (removerAtletas atletas atletasARemover) j)
+juegoSinAtletas (J anio atletas d) atletasARemover = (J anio (removerAtletas atletas atletasARemover) d)
 juegoSinAtletas (NuevoDia c j) atletasARemover     = (NuevoDia c (juegoSinAtletas j atletasARemover))
 
 removerAtletas :: [Atleta] -> [Atleta] -> [Atleta]
