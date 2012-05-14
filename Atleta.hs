@@ -33,33 +33,33 @@ deportesA (A a b c d e (x:xs)) = fst x : deportesA (A a b c d e xs)
 capacidadA :: Atleta -> Deporte -> Int
 capacidadA (A _ _ _ _ _ [x]) _ = snd x
 capacidadA (A a b c d e (x:xs)) deporte
-	| fst x == deporte = snd x
-	| otherwise = capacidadA (A a b c d e xs) deporte
+    | fst x == deporte = snd x
+    | otherwise = capacidadA (A a b c d e xs) deporte
 
 auxExisteDeporte :: [(Deporte, Int)] -> Deporte -> Bool
 auxExisteDeporte [] _ = False
 auxExisteDeporte (x:xs) dep
-	| (fst x) == dep = True
-	| otherwise = auxExisteDeporte xs dep
+    | (fst x) == dep = True
+    | otherwise = auxExisteDeporte xs dep
 
 auxModificaCapacidad :: [(Deporte, Int)] -> Deporte -> Int -> [(Deporte, Int)]
 auxModificaCapacidad [] _ _ = []
 auxModificaCapacidad (deporte:ldeportes) depAModificar capAModificar
-	| (fst deporte) == depAModificar =
-		((fst deporte), capAModificar) : (auxModificaCapacidad ldeportes depAModificar capAModificar)
-	| otherwise = deporte : (auxModificaCapacidad ldeportes depAModificar capAModificar)
+    | (fst deporte) == depAModificar =
+        ((fst deporte), capAModificar) : (auxModificaCapacidad ldeportes depAModificar capAModificar)
+    | otherwise = deporte : (auxModificaCapacidad ldeportes depAModificar capAModificar)
 
 auxAgregarDeporte :: [(Deporte, Int)] -> Deporte -> Int -> [(Deporte, Int)]
 auxAgregarDeporte [] a b = [(a,b)]
 auxAgregarDeporte (x:xs) dep cap
-	| dep <= fst x = (dep,cap): (x:xs)
-	| dep > fst x = x: auxAgregarDeporte xs dep cap
+    | dep <= fst x = (dep,cap): (x:xs)
+    | dep > fst x = x: auxAgregarDeporte xs dep cap
 
 entrenarDeporteA :: Atleta -> Deporte -> Int -> Atleta
 entrenarDeporteA (A nombre sexo anio pais cia deportes) depPorAgregar capPorAgregar
-	| auxExisteDeporte deportes depPorAgregar =
-		(A nombre sexo anio pais cia (auxModificaCapacidad deportes depPorAgregar capPorAgregar) )
-	| otherwise = (A nombre sexo anio pais cia (auxAgregarDeporte deportes depPorAgregar capPorAgregar))
+    | auxExisteDeporte deportes depPorAgregar =
+        (A nombre sexo anio pais cia (auxModificaCapacidad deportes depPorAgregar capPorAgregar) )
+    | otherwise = (A nombre sexo anio pais cia (auxAgregarDeporte deportes depPorAgregar capPorAgregar))
 
 instance Show Atleta where
-	show (A nombre sexo edad pais ciaNumber capacidades) = nombre ++ " (#" ++ show ciaNumber ++ ")"
+    show (A nombre sexo edad pais ciaNumber capacidades) = nombre ++ " (#" ++ show ciaNumber ++ ")"
