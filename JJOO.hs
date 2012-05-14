@@ -109,6 +109,8 @@ medallistas m j = obtenerMedallistas (competenciasFinalizadas j) m
               | (length (rankingC x)) <= m = obtenerMedallistas xs m
               | otherwise                  = (rankingC x !! m) : obtenerMedallistas xs m
 
+
+
 -- Devuelve las competencias finalizadas hasta la jornada actual inclusive. 
 competenciasFinalizadas :: JJOO -> [Competencia]
 competenciasFinalizadas j = competencias (jornadaActualJ j) j
@@ -242,60 +244,40 @@ boicotPorDisciplinaJ j cat p = (cantAtletasBoicoteados, boicotearJornada j)
 -- losMasFracasadosJ-----------------------------------------------------------
 -------------------------------------------------------------------------------
 
-losMasFracasadosJ :: JJOO->Pais->[Atleta]
-losMasFracasadosJ (J _ atletas _) p = atletas
-losMasFracasadosJ (NuevoDia competencias juegos) pais =
-    auxPerdedores (NuevoDia competencias juegos)
-                  (auxordenAtletas (NuevoDia competencias juegos)
-                                   (auxAtletasPais (atletasJ juegos) pais))
-
-auxPerdedores :: JJOO->[Atleta]->[Atleta]
-auxPerdedores juegos [] = []
-auxPerdedores juegos (a:as)
-    | not(ganoMedalla (competenciasFinalizadas juegos) a) = a : auxPerdedores juegos as
-    | otherwise = auxPerdedores juegos as
-        where ganoMedalla c a = (ganoOro c a || ganoPlata c a || ganoBronce c a)
-              ganoOro [] a = False
-              ganoOro (comp:competencia) a
-                | ciaNumberA ((rankingC comp) !! 0) == ciaNumberA a = True
-                | otherwise                                         = ganoOro competencia a
-              ganoPlata [] a = False
-              ganoPlata (comp:competencia) a
-                | ciaNumberA ((rankingC comp) !! 1) == ciaNumberA a = True
-                | otherwise                                         = ganoPlata competencia a
-              ganoBronce [] a = False
-              ganoBronce (comp:competencia) a
-                | ciaNumberA ((rankingC comp)!!2) == ciaNumberA a = True
-                | otherwise                                       = ganoBronce competencia a
-
-auxordenAtletas :: JJOO->[Atleta]-> [Atleta]
-auxordenAtletas juegos [] = []
-auxordenAtletas juegos [x] = [x]
-auxordenAtletas juegos (x:y:xs)
-    | cantCompetencias juegos x  >= cantCompetencias juegos y = x : auxordenAtletas juegos (y:xs)
-    | cantCompetencias juegos x < cantCompetencias juegos y   = y : auxordenAtletas juegos (x:xs)
-
-cantCompetencias :: JJOO->Atleta->Int
-cantCompetencias (J _ _ _) _ = 0
-cantCompetencias juegos atleta = auxCompe (competenciasFinalizadas juegos) atleta
-
-auxCompe :: [Competencia] -> Atleta -> Int
-auxCompe [] _ = 0
-auxCompe (compe:competencias) atleta
-    | auxPertenece (participantesC compe) atleta = 1 + auxCompe competencias atleta
-    | otherwise                                  = auxCompe competencias atleta
-
-auxPertenece :: [Atleta]->Atleta->Bool
-auxPertenece [] a = False
-auxPertenece (atleta:atletas) a
-    | ciaNumberA a == ciaNumberA atleta = True
-    | otherwise                         = auxPertenece atletas a  
-
-auxAtletasPais :: [Atleta]->Pais->[Atleta]
-auxAtletasPais [] _ = []
-auxAtletasPais (x:xs) p
-    | nacionalidadA x == p = x : auxAtletasPais xs p
-    | otherwise            = auxAtletasPais xs p
+losMasFracasadosJ :: JJOO -> Pais -> [Atleta]
+losMasFracasadosJ j p = noGanaronMedallas (losMasParticipantes atletasDelPais)
+    where noGanaronMedallas [] = []
+          noGanaronMedallas (x:xs)
+            | ganoMedallas x = noGanaronMedallas xs
+            | otherwise      = x:(noGanaronMedallas xs)
+          ganoMedallas a = elem (ciaNumberA a) (ciaNumbers ((medallistas 0 j) ++
+                                                            (medallistas 1 j) ++
+                                                            (medallistas 2 j)))
+          losMasParticipantes [] = []
+          losMasParticipantes xs = obtenerLosMasParticipantes xs xs
+          obtenerLosMasParticipantes [] _      = []
+          obtenerLosMasParticipantes (x:xs) ys
+            | esMasParticipante x ys = x:(obtenerLosMasParticipantes xs ys)
+            | otherwise              = obtenerLosMasParticipantes xs ys
+          esMasParticipante _ [] = True
+          esMasParticipante w (x:xs) =
+                ((participacion w competencias) >= (participacion x competencias)) &&
+                (esMasParticipante w xs)
+          competencias = obtenerCompetencias 1
+          obtenerCompetencias d
+            | d <= cantDiasJ j = (cronogramaJ j d) ++ (obtenerCompetencias (d + 1))
+            | otherwise        = []
+          participacion _ [] = 0
+          participacion a (x:xs)
+            | elem (ciaNumberA a) (ciaNumbers (participantesC x)) = 1 + (participacion a xs)
+            | otherwise                                           = participacion a xs
+          atletasDelPais = obtenerAtletasDelPais (atletasJ j)
+          obtenerAtletasDelPais [] = []
+          obtenerAtletasDelPais (x:xs)
+            | nacionalidadA x == p = x:(obtenerAtletasDelPais xs)
+            | otherwise            = obtenerAtletasDelPais xs
+          ciaNumbers [] = []
+          ciaNumbers (x:xs) = (ciaNumberA x):(ciaNumbers xs)
 
 -------------------------------------------------------------------------------
 -- Fin de losMasFracasadosJ ---------------------------------------------------
@@ -478,7 +460,7 @@ sequiaOlimpicaJ j = buscarMasSecos (obtenerPaises (atletasJ j)) (obtenerPaises (
           esMasSeco w (x:xs) = (maxDiasSinGanar w j >= maxDiasSinGanar x j) &&
                                (esMasSeco w xs)
           obtenerPaises [] = []
-          obtenerPaises (x:xs) = (nacionalidadA x):sinRepetidos (obtenerPaises xs)
+          obtenerPaises (x:xs) =(nacionalidadA x):sinRepetidos (obtenerPaises xs)
           maxDiasSinGanar p j = buscarMax (calcularDiferencias (jornadas p j))
           jornadas p j= 0 : (jornadasEnLasQueGano p j) ++ [jornadaActualJ j]
           calcularDiferencias [x,y] = [y - x]
