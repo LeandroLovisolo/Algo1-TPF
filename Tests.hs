@@ -79,23 +79,32 @@ tests = TestList [
         -- Módulo Competencia ---------------------------------------------------------
         -------------------------------------------------------------------------------
 
+        --rankingC -------------------------------------------------------------------
 
         "rankingC: devuelve los atletas correctos" ~:
             ["Abel", "Beto", "Carlos", "Daniel", "Esteban", "Federico", "Gabriel", "Horacio"]
                 @=? map nombreA (rankingC dataCompetencia),
 
+        -- lesTocoControlAntiDopingC --------------------------------------------------
+
         "lesTocoControlAntiDopingC: devuelve los atletas correctos" ~:
             [222, 444] @=? map ciaNumberA (lesTocoControlAntiDopingC dataCompetencia),
+
+        -- leDioPositivoC -------------------------------------------------------------
 
         "leDioPositivoC: devuelve los valores correctos" ~:
             [False, True] @=? map (\a -> leDioPositivoC dataCompetencia a)
                                   (lesTocoControlAntiDopingC dataCompetencia),
+
+        -- sancionarTrampososC --------------------------------------------------------
 
         "sancionarTrampososC : saca del ranking a los que le dio positivo en el anti-dopping"~:
           [111, 222, 333, 555, 666, 777, 888] @=? map ciaNumberA (rankingC (sancionarTrampososC dataCompetencia)),
 
         "sancionarTrampososC : probando con un dopping vacio"~:
           [111, 222, 333, 444, 555, 666, 777, 888] @=? map ciaNumberA (rankingC (sancionarTrampososC dataCompetenciaSinDopping)),
+
+        -- gananLosMasCapacesC --------------------------------------------------------
 
         "gananLosMasCapacesC : True si las capacidades de los atletas en el ranking son decrecientes"~:
           True @=? gananLosMasCapacesC dataGananLosMasCapacesC,
@@ -167,15 +176,11 @@ tests = TestList [
 
         -- boicotPorDisciplinaJ ---------------------------------------------------------
 
-        "boicotPorDisciplinaJ: devuelve JJOO sin atletas de ese pais en la categoria" ~:
-          False @=? auxExisteNacionalidad
-          (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Argentina") 
-            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Argentina" ))) "Argentina" ("Futbol",Masculino),
+        "boicotPorDisciplinaJ: el país boicoteado tiene atletas" ~:
+            True @=? probarBoicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol", Masculino) "Argentina",
         
-        "boicotPorDisciplinaJ: devuelve JJOO sin atletas de ese pais en la categoria, prueba con ningun atleta de tal pais en la categoria" ~:
-          False @=? auxExisteNacionalidad
-          (todasLasCompe (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia") 
-            (cantDiasJ (boicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol",Masculino) "Etiopia" ))) "Etiopia" ("Futbol",Masculino),
+        "boicotPorDisciplinaJ:  el país boicoteado no tiene atletas" ~:
+            True @=? probarBoicotPorDisciplinaJ dataBoicotPorDisciplinaJ ("Futbol", Masculino) "Etiopia",
 
         -- stevenBradburyJ ------------------------------------------------------------
 
@@ -228,14 +233,57 @@ tests = TestList [
 -------------------------------------------------------------------------------
 
 
+-- General --------------------------------------------------------------------
+
 dataCompetencia :: Competencia
 dataCompetencia = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
                              [111, 222, 333, 444, 555, 666, 777, 888]
                              [(222, False), (444, True)]
 
+dataAtletas :: [Atleta]
+dataAtletas = map entrenarDeportes atletas 
+  where atletas = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
+                   (nuevoA "Beto"     Masculino 19 "Brasil"    222),
+                   (nuevoA "Carlos"   Masculino 20 "Chile"     333),
+                   (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444),
+                   (nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
+                   (nuevoA "Federico" Masculino 23 "Francia"   666),
+                   (nuevoA "Gabriel"  Masculino 24 "Grecia"    777),
+                   (nuevoA "Horacio"  Masculino 25 "Honduras"  888),
+                   (nuevoA "Hector"   Masculino 26 "Honduras"  999)]
+        deportes = ["Futbol", "Handball", "Basket", "Volley", "Arqueria", "Natacion"]
+        entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
+        entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte (capacidad atleta)
+        capacidad atleta = ciaNumberA atleta
+
+dataEntrenarDeporteA :: [(Deporte, Int)]
+dataEntrenarDeporteA = [("Futbol", 23), ("Bmx", 40), ("Tenis", 60), ("Trekking", 30), ("Buceo", 23), ("Javalina", 30)]
+
+entrenarDeportes :: Atleta -> [(Deporte, Int)] -> Atleta
+entrenarDeportes atle [] = atle
+entrenarDeportes atle (dep:deportes) = entrenarDeporteA atle (fst dep) (snd dep)
+
+deportesEnOrden :: [Deporte] -> Bool
+deportesEnOrden [] = True
+deportesEnOrden [x] = True
+deportesEnOrden (fdep:sdep:deportes) = (fdep <= sdep) && (deportesEnOrden (sdep:deportes))
+
+dataAtleta :: String -> Pais -> Int -> [(Deporte, Int)] -> Atleta
+dataAtleta nombre pais ciaNumber capacidades =
+        entrenar (nuevoA nombre Masculino 18 pais ciaNumber) capacidades
+    where entrenar a []     = a
+          entrenar a (x:xs) = entrenar (entrenarDeporteA a (fst x) (snd x)) xs
+
+transcurrirDias j 0 = j
+transcurrirDias j d = transcurrirDias (transcurrirDiaJ j) (d - 1)
+
+-- sancionarTrampososC --------------------------------------------------------
+
 dataCompetenciaSinDopping :: Competencia
 dataCompetenciaSinDopping = finalizarC (nuevaC "Futbol" Masculino dataAtletas)
                                        [111, 222, 333, 444, 555, 666, 777, 888] []
+
+-- gananLosMasCapacesC --------------------------------------------------------
 
 dataGananLosMasCapacesC :: Competencia
 dataGananLosMasCapacesC = finalizarC (nuevaC "Futbol" Masculino atletas) [3,2,1] []
@@ -254,6 +302,9 @@ dataGananLosMasCapacesCVacio = finalizarC (nuevaC "Futbol" Masculino atletas) []
     where atletas    = [dataAtleta "Juan" "Argentina" 1 [("Futbol", 10), ("Basket", 40), ("Handball", 50)],
                         dataAtleta "Pepe" "Brasil"    2 [("Futbol", 20), ("Basket", 30), ("Handball", 60)],
                         dataAtleta "Pepe" "Brasil"    3 [("Futbol", 60), ("Basket", 30), ("Handball", 60)]]
+
+-- dePaseoJ -------------------------------------------------------------------
+
 dataDePaseoJ :: JJOO
 dataDePaseoJ = nuevoJ 2012 atletas cronograma
     where atletas = atletasActivos ++ atletasDePaseo
@@ -272,8 +323,12 @@ dataDePaseoJ = nuevoJ 2012 atletas cronograma
                   (competencia "Natacion")]
           competencia d = (nuevaC d Masculino atletasActivos)
 
+-- medalleroJ -----------------------------------------------------------------
+
 dataMedalleroJ :: JJOO
 dataMedalleroJ = dataTranscurrirDiaJ
+
+-- transcurrirDiaJ ------------------------------------------------------------
 
 dataTranscurrirDiaJ :: JJOO
 dataTranscurrirDiaJ = transcurrirDiaJ (nuevoJ 2012 dataAtletas cronograma)
@@ -289,6 +344,8 @@ dataTranscurrirDiaJ = transcurrirDiaJ (nuevoJ 2012 dataAtletas cronograma)
                   (competencia  "Rugby")]
           competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
           competencia  dep     = (nuevaC dep Masculino dataAtletas)
+
+-- uyOrdenadoAsiHayUnPatronJ --------------------------------------------------
 
 dataUyOrdenadoAsiHayUnPatronJ :: JJOO
 dataUyOrdenadoAsiHayUnPatronJ = (nuevoJ 2012 dataAtletas cronograma)
@@ -326,6 +383,27 @@ dataUyOrdenadoAsiHayUnPatronJ' = (nuevoJ 2012 dataAtletas cronograma)
           competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
           competencia  dep     = (nuevaC dep Masculino dataAtletas)
 
+-- boicotPorDisciplinaJ -------------------------------------------------------
+
+probarBoicotPorDisciplinaJ j c p       = seEliminanLosCorrectos && cantidadCorrecta
+    where seEliminanLosCorrectos       = not (hayAtletasDelPais p (competencia (competencias (snd result) (cantDiasJ (snd result))) c))
+          cantidadCorrecta             = length (buscarBoicoteados (participantesC (competenciaBoicoteada (competencias j 1)))) == fst result
+          buscarBoicoteados []         = []
+          buscarBoicoteados (x:xs)
+            | nacionalidadA x == p     = x:(buscarBoicoteados xs)
+            | otherwise                = buscarBoicoteados xs
+          competenciaBoicoteada (x:xs)
+            | categoriaC x == c        = x
+            | otherwise                = competenciaBoicoteada xs
+          result                       = boicotPorDisciplinaJ j c p
+          competencias j' 1            =  cronogramaJ j' 1
+          competencias j' x            = (cronogramaJ j' x) ++ (competencias j' (x-1))
+          competencia (x:xs) c
+            | categoriaC x == c        = x
+            | otherwise                = competencia xs c
+          obtenerPaises []             = []
+          obtenerPaises (x:xs)         = (nacionalidadA x) : (obtenerPaises xs)
+          hayAtletasDelPais p c        = elem p (obtenerPaises (participantesC c))
 
 dataBoicotPorDisciplinaJ :: JJOO
 dataBoicotPorDisciplinaJ = (nuevoJ 2012 dataAtletas cronograma)
@@ -345,35 +423,7 @@ dataBoicotPorDisciplinaJ = (nuevoJ 2012 dataAtletas cronograma)
           competenciaF dep pos = finalizarC (nuevaC dep Masculino dataAtletas) pos []
           competencia  dep     = (nuevaC dep Masculino dataAtletas)
 
-auxExisteNacionalidad :: [Competencia] -> Pais -> Categoria -> Bool
-auxExisteNacionalidad [] _ _ = False
-auxExisteNacionalidad (compe:competencias) pais cate 
-              | ((categoriaC compe) == cate) && (elem pais (listaPaisesAtletas (participantesC compe) )) = True
-              | otherwise = auxExisteNacionalidad competencias pais cate
-
-listaPaisesAtletas :: [Atleta] -> [Pais]
-listaPaisesAtletas [] = []
-listaPaisesAtletas (atle:atletas) = (nacionalidadA atle) : (listaPaisesAtletas atletas)
-
-todasLasCompe :: JJOO -> Int -> [Competencia]
-todasLasCompe juegos 1 = cronogramaJ juegos 1
-todasLasCompe juegos x = (cronogramaJ juegos x) ++ (todasLasCompe juegos (x-1))
-
-dataAtletas :: [Atleta]
-dataAtletas = map entrenarDeportes atletas 
-  where atletas = [(nuevoA "Abel"     Masculino 18 "Argentina" 111),
-                   (nuevoA "Beto"     Masculino 19 "Brasil"    222),
-                   (nuevoA "Carlos"   Masculino 20 "Chile"     333),
-                   (nuevoA "Daniel"   Masculino 21 "Dinamarca" 444),
-                   (nuevoA "Esteban"  Masculino 22 "Ecuador"   555),
-                   (nuevoA "Federico" Masculino 23 "Francia"   666),
-                   (nuevoA "Gabriel"  Masculino 24 "Grecia"    777),
-                   (nuevoA "Horacio"  Masculino 25 "Honduras"  888),
-                   (nuevoA "Hector"   Masculino 26 "Honduras"  999)]
-        deportes = ["Futbol", "Handball", "Basket", "Volley", "Arqueria", "Natacion"]
-        entrenarDeportes atleta = foldl entrenarDeporte atleta deportes
-        entrenarDeporte atleta deporte = entrenarDeporteA atleta deporte (capacidad atleta)
-        capacidad atleta = ciaNumberA atleta
+-- stevenBradburyJ ------------------------------------------------------------
 
 dataStevenBradburyJ   = nuevoJ 2012 atletas [[competencia]]
     where atletas     = [dataAtleta "Abel" "Argentina" 1 [("Futbol", 100)]]
@@ -392,6 +442,8 @@ dataStevenBradburyJ'' = transcurrirDiaJ (nuevoJ 2012 atletas [dia1, dia2])
           dia1        = [finalizarC (nuevaC "Futbol"   Masculino atletas) [1,2,3] [],
                          finalizarC (nuevaC "Basket"   Masculino atletas) [2,1,3] []]
           dia2        = [finalizarC (nuevaC "Handball" Masculino atletas) [3,1,2] []]
+
+-- sequiaOlimplicaJ -----------------------------------------------------------
 
 dataSequiaOlimpicaJ   = nuevoJ 2012 atletas [[competencia]]
     where atletas     = [dataAtleta "Juan" "Argentina" 1 [("Futbol", 10)],
@@ -414,6 +466,8 @@ dataSequiaOlimpicaJ'' = transcurrirDias (nuevoJ 2012 atletas [dia1, dia2, dia3, 
           dia3        = [finalizarC (nuevaC "C" Masculino atletas) [3,1] []]
           dia4        = [finalizarC (nuevaC "D" Masculino atletas) [1]   []]
           dia5        = [finalizarC (nuevaC "E" Masculino atletas) [2,3] []]
+
+-- liuSongJ -------------------------------------------------------------------
 
 dataLiuSongJ       = transcurrirDiaJ (nuevoJ 2012 atletas [dia1, dia2, dia3])
     where atleta1  = dataAtleta "Abel"     "Argentina" 1 [("A", 10), ("B", 80)]
@@ -463,8 +517,7 @@ atletasIguales a1 a2 = nombreA a1         == nombreA a2         &&
 mismos :: Eq a => [a] -> [a] -> Bool
 mismos x y = (all (`elem` x) y) && (all (`elem` y) x)
 
-
-
+-- losMasFracasadosJ ----------------------------------------------------------
 
 dataLosMasFracasadosJ = transcurrirDias (nuevoJ 2012 atletas [dia1, dia2]) 2
     where atletas     = [atleta1, atleta2, atleta3, atleta4,
@@ -483,26 +536,3 @@ dataLosMasFracasadosJ = transcurrirDias (nuevoJ 2012 atletas [dia1, dia2]) 2
           dia1        = [finalizarC (nuevaC "A" Masculino atletasA) [3,5,6,7,8] [],
                          finalizarC (nuevaC "B" Masculino atletasB) [8,4,6,2,1] []]
           dia2        = [finalizarC (nuevaC "C" Masculino atletasC) [7,8,5,2,3] []]
-
-
-
-dataEntrenarDeporteA :: [(Deporte, Int)]
-dataEntrenarDeporteA = [("Futbol", 23), ("Bmx", 40), ("Tenis", 60), ("Trekking", 30), ("Buceo", 23), ("Javalina", 30)]
-
-entrenarDeportes :: Atleta -> [(Deporte, Int)] -> Atleta
-entrenarDeportes atle [] = atle
-entrenarDeportes atle (dep:deportes) = entrenarDeporteA atle (fst dep) (snd dep)
-
-deportesEnOrden :: [Deporte] -> Bool
-deportesEnOrden [] = True
-deportesEnOrden [x] = True
-deportesEnOrden (fdep:sdep:deportes) = (fdep <= sdep) && (deportesEnOrden (sdep:deportes))
-
-dataAtleta :: String -> Pais -> Int -> [(Deporte, Int)] -> Atleta
-dataAtleta nombre pais ciaNumber capacidades =
-        entrenar (nuevoA nombre Masculino 18 pais ciaNumber) capacidades
-    where entrenar a []     = a
-          entrenar a (x:xs) = entrenar (entrenarDeporteA a (fst x) (snd x)) xs
-
-transcurrirDias j 0 = j
-transcurrirDias j d = transcurrirDias (transcurrirDiaJ j) (d - 1)

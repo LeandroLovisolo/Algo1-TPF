@@ -195,48 +195,42 @@ auxCrearDopping c
 -- boicotPorDisciplinaJ -------------------------------------------------------
 -------------------------------------------------------------------------------
 
-boicotPorDisciplinaJ :: JJOO -> (Deporte, Sexo) -> Pais -> JJOO
-boicotPorDisciplinaJ (J anio atletas jornadaActual) _ _ = (J anio atletas jornadaActual)
-boicotPorDisciplinaJ (NuevoDia competencias juegos) cate pais = 
-    (NuevoDia (auxCompetenciasSinAtletasConPaisYCat competencias pais cate)
-              (boicotPorDisciplinaJ juegos cate pais))
-
-auxRankingSinAtletasConPais :: [Atleta] -> Pais -> [Int]
-auxRankingSinAtletasConPais [] _ = []
-auxRankingSinAtletasConPais (atle:atletas) pais
-    | (nacionalidadA atle) == pais = auxRankingSinAtletasConPais atletas pais
-    | otherwise                    = (ciaNumberA atle) : (auxRankingSinAtletasConPais atletas pais)
-
-auxDoppingSinAtletasConPais :: [Atleta] -> Pais -> Competencia -> [(Int, Bool)]
-auxDoppingSinAtletasConPais [] _ _ = []
-auxDoppingSinAtletasConPais (atle:atletas) pais compe
-    | (nacionalidadA atle) == pais = auxDoppingSinAtletasConPais atletas pais compe
-    | otherwise                    = (ciaNumberA atle, leDioPositivoC compe atle) :
-                                     (auxDoppingSinAtletasConPais atletas pais compe)
-
-auxCompetenciasSinAtletasConPaisYCat :: [Competencia] -> Pais -> Categoria -> [Competencia]
-auxCompetenciasSinAtletasConPaisYCat [] _ _ = []
-auxCompetenciasSinAtletasConPaisYCat (compe:competencias) pais cat
-    | (categoriaC compe == cat) && (not (finalizadaC compe)) =
-        (nuevaC (fst(categoriaC compe))
-                (snd(categoriaC compe))
-                (auxSacarAtletasConPais (participantesC compe) pais)) :
-        (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
-    | (categoriaC compe == cat) && (finalizadaC compe) = 
-                (finalizarC (nuevaC (fst(categoriaC compe))
-                                    (snd(categoriaC compe)) 
-                            (auxSacarAtletasConPais (participantesC compe) pais))
-                            (auxRankingSinAtletasConPais (rankingC compe) pais) 
-                            (auxDoppingSinAtletasConPais (lesTocoControlAntiDopingC compe)
-                                                         pais compe)) :
-                (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
-    | otherwise = compe : (auxCompetenciasSinAtletasConPaisYCat competencias pais cat)
-
-auxSacarAtletasConPais :: [Atleta] -> Pais -> [Atleta]
-auxSacarAtletasConPais [] _ = []
-auxSacarAtletasConPais (atle:atletas) pais
-    | (nacionalidadA atle) /= pais = atle : auxSacarAtletasConPais atletas pais
-    | otherwise                    = auxSacarAtletasConPais atletas pais
+boicotPorDisciplinaJ :: JJOO -> (Deporte, Sexo) -> Pais -> (Int, JJOO)
+boicotPorDisciplinaJ j cat p = (cantAtletasBoicoteados, boicotearJornada j)
+    where boicotearJornada (J x y z) = (J x y z)
+          boicotearJornada (NuevoDia cs j) = (NuevoDia (boicotearCategorias cs)
+                                                       (boicotearJornada j))
+          boicotearCategorias [] = []
+          boicotearCategorias (x:xs) 
+            | (categoriaC x == cat) && (not (finalizadaC x)) =
+                (nuevaC (fst (categoriaC x))
+                        (snd (categoriaC x))
+                        (boicotearAtletas (participantesC x))) : (boicotearCategorias xs)
+            | (categoriaC x == cat) && (finalizadaC x) = 
+                (finalizarC (nuevaC (fst cat) (snd cat) 
+                                    (boicotearAtletas (participantesC x)))
+                            (boicotearRanking (rankingC x)) 
+                            (boicotearDoping x)) : (boicotearCategorias xs)
+            | otherwise = x:(boicotearCategorias xs)
+          boicotearAtletas [] = []
+          boicotearAtletas (x:xs) 
+            | nacionalidadA x == p = boicotearAtletas xs
+            | otherwise            = x:(boicotearAtletas xs)
+          boicotearRanking xs = ciaNumbers (boicotearAtletas xs)
+          ciaNumbers [] = []
+          ciaNumbers (x:xs) = (ciaNumberA x):(ciaNumbers xs)
+          boicotearDoping c = tuplasDoping (boicotearAtletas (lesTocoControlAntiDopingC c)) c
+          tuplasDoping [] _ = []
+          tuplasDoping (x:xs) c = (ciaNumberA x, leDioPositivoC c x):(tuplasDoping xs c)
+          cantAtletasBoicoteados = contarBoicoteados (categoriaBoicoteada (categorias 1))
+          categorias d
+            | d < cantDiasJ j = (cronogramaJ j d) ++ (categorias (d + 1))
+            | otherwise       =  cronogramaJ j d
+          categoriaBoicoteada (x:xs) 
+            | categoriaC x == cat = x
+            | otherwise           = categoriaBoicoteada xs            
+          contarBoicoteados x = (length (participantesC x)) -
+                                (length (boicotearAtletas (participantesC x)))
 
 -------------------------------------------------------------------------------
 -- Fin de boicotPorDisciplinaJ ------------------------------------------------
