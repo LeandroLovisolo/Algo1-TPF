@@ -460,7 +460,7 @@ sequiaOlimpicaJ j = buscarMasSecos (obtenerPaises (atletasJ j)) (obtenerPaises (
           esMasSeco w (x:xs) = (maxDiasSinGanar w j >= maxDiasSinGanar x j) &&
                                (esMasSeco w xs)
           obtenerPaises [] = []
-          obtenerPaises (x:xs) =(nacionalidadA x):sinRepetidos (obtenerPaises xs)
+          obtenerPaises (x:xs) = sinRepetidos ((nacionalidadA x):(obtenerPaises xs))
           maxDiasSinGanar p j = buscarMax (calcularDiferencias (jornadas p j))
           jornadas p j= 0 : (jornadasEnLasQueGano p j) ++ [jornadaActualJ j]
           calcularDiferencias [x,y] = [y - x]
